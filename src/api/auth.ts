@@ -1,0 +1,55 @@
+import { UserLogin, UserRegistration, UserRoles } from "../models/User";
+import { RegisterFormData, LoginFormData } from "../models/Auth";
+import { getRequestBody } from "../utils/authUtils";
+import { getAxiosError } from "../utils/axiosUtils";
+import api from ".";
+
+const AUTH_BASE_URL = "/auth";
+
+const requestUrls = {
+  register: {
+    student: "",
+    teacher: "/register/teacher",
+    admin: "/create/admin",
+  },
+  login: "/token",
+  logout: "/logout",
+  getToken: "/me",
+  refreshToken: "/refresh",
+};
+
+export const shouldIncludeAuth = {
+  register: ["teacher", "admin"],
+};
+
+const getAuthUrl = (path: string) => `${AUTH_BASE_URL}${path}`;
+
+export const authApi = {
+  register: async (formData: RegisterFormData, userRole: UserRoles) => {
+    const body: UserRegistration = getRequestBody.register(formData);
+
+    try {
+      return await api.post(getAuthUrl(requestUrls.register[userRole]), body);
+    } catch (error: unknown) {
+      return getAxiosError(error);
+    }
+  },
+  login: async (formData: LoginFormData) => {
+    const body: UserLogin = getRequestBody.login(formData);
+
+    try {
+      return await api.post(getAuthUrl(requestUrls.login), body);
+    } catch (error: unknown) {
+      return getAxiosError(error);
+    }
+  },
+  logout: async () => {
+    return await api.post(getAuthUrl(requestUrls.logout));
+  },
+  getToken: async () => {
+    return await api.get(getAuthUrl(requestUrls.getToken));
+  },
+  refreshToken: async () => {
+    return await api.post(getAuthUrl(requestUrls.refreshToken));
+  },
+};
