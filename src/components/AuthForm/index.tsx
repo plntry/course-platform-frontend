@@ -15,7 +15,6 @@ import {
   RegisterFormData,
   AuthRequestType,
   AuthError,
-  UserRoles,
   AuthFormProps,
 } from "../../models/Auth";
 import { authApi } from "../../api/auth";
@@ -45,7 +44,6 @@ const AuthForm: React.FC<AuthFormProps> = ({
       mode === "register"
         ? await authApi.register(formData as RegisterFormData, userRoleToCreate)
         : await authApi.login(formData as LoginFormData);
-    console.log({ response });
 
     handleAuthResponse(
       response,

@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Form, Input } from "antd";
 import AuthForm from "../AuthForm";
 import { formItemsLayouts } from "./formItemsLayouts";
-import { UserRoles } from "../../models/Auth";
+import { UserRoles } from "../../models/User";
 
 const Register: React.FC<{ userRoleToCreate?: UserRoles }> = ({
   userRoleToCreate = "student",

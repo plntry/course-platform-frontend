@@ -1,17 +1,11 @@
 import { create } from "zustand";
-import api from "../api";
+import { AuthUser } from "../models/User";
 import { authApi } from "../api/auth";
 
-interface User {
-  id: number;
-  email: string;
-  role: string;
-}
-
 interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
-  setUser: (user: User | null) => void;
+  setUser: (user: AuthUser | null) => void;
   checkAuth: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -30,6 +24,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (error.response?.status === 401) {
         try {
           await authApi.refreshToken();
+
           const { data } = await authApi.getToken();
           set({ user: data, isAuthenticated: true });
         } catch {
@@ -40,7 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await api.post("/auth/logout");
+    await authApi.logout();
     set({ user: null, isAuthenticated: false });
   },
 }));

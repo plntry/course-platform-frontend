@@ -1,9 +1,8 @@
 import { redirect } from "react-router";
 import { PATHS } from "../../routes/paths";
+import { authApi } from "../../api/auth";
 
-export function action() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("refreshToken"); // TODO: remove when the logic on backend is done
-  localStorage.removeItem("expiration");
+export async function action() {
+  await authApi.logout();
   return redirect(PATHS.AUTH);
 }

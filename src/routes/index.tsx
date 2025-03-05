@@ -2,7 +2,7 @@ import { PATHS } from "./paths";
 import Home from "../pages/Home";
 import AuthPage from "../pages/AuthPage";
 import ErrorPage from "../pages/ErrorPage";
-import { rootLoader, protectedLoader } from "../utils/authUtils";
+import { rootLoader } from "../utils/authUtils";
 import { action as logoutAction } from "../pages/Logout";
 import RootLayout from "../pages/RootLayout";
 import Loader from "../components/Loader";
@@ -18,11 +18,10 @@ export const routes = [
       {
         index: true,
         element: <Home />,
-        // loader: protectedLoader,
       },
       {
         path: PATHS.LOGOUT,
-        // action: logoutAction,
+        action: logoutAction,
       },
       {
         path: PATHS.NOT_FOUND,

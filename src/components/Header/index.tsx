@@ -2,8 +2,6 @@ import React from "react";
 import { Link, useNavigate, useSubmit, useLocation } from "react-router";
 import { PATHS } from "../../routes/paths";
 import { Layout, Menu, theme } from "antd";
-import type { MenuProps } from "antd";
-import { HomeOutlined, LogoutOutlined } from "@ant-design/icons";
 import classes from "./Header.module.css";
 import logo from "../../assets/logo.png";
 import { headerTabs } from "./headerTabs";
@@ -21,7 +19,6 @@ const Header: React.FC = () => {
   } = theme.useToken();
 
   const role = useAuthStore((state) => state.user?.role) || "student";
-  console.log({ role });
 
   const menuItems: MenuItem[] = headerTabs[role];
 
@@ -58,5 +55,3 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-
-const normalizePath = (path: string) => path.replace(/^\/+/, "");

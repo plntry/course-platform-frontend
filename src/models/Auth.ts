@@ -1,8 +1,7 @@
 import { FormProps } from "antd";
+import { UserRoles } from "./User";
 
 export type AuthRequestType = "register" | "login";
-
-export type UserRoles = "admin" | "teacher" | "student";
 
 export interface RegisterFormData {
   username: string;

@@ -1,3 +1,5 @@
+export type UserRoles = "admin" | "teacher" | "student";
+
 export interface UserRegistration {
   username: string;
   email: string;
@@ -10,4 +12,10 @@ export interface UserRegistration {
 export interface UserLogin {
   email: string;
   password: string;
+}
+
+export interface AuthUser {
+  id: number;
+  email: string;
+  role: UserRoles;
 }
