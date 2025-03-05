@@ -1,11 +1,15 @@
-export type UserRoles = "admin" | "teacher" | "student";
+export enum UserRoles {
+  Admin = "admin",
+  Teacher = "teacher",
+  Student = "student",
+}
 
 export interface UserRegistration {
   email: string;
   password: string;
   first_name: string;
   last_name: string;
-  role: "student";
+  role: UserRoles.Student;
 }
 
 export interface UserLogin {

@@ -20,10 +20,11 @@ import {
 import { authApi } from "../../api/auth";
 import logo from "../../assets/logo.png";
 import classes from "./AuthForm.module.css";
+import { UserRoles } from "../../models/User";
 
 const AuthForm: React.FC<AuthFormProps> = ({
   mode,
-  userRoleToCreate = "student",
+  userRoleToCreate = UserRoles.Student,
   children,
   ...props
 }) => {
@@ -59,7 +60,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
       vertical
       justify="center"
       align="center"
-      className={userRoleToCreate === "student" ? classes.authContainer : ""}
+      className={
+        userRoleToCreate === UserRoles.Student ? classes.authContainer : ""
+      }
     >
       <Flex justify="center" align="center">
         <img className={classes.logo} src={logo} alt="Logo" />

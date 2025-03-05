@@ -5,7 +5,7 @@ import { formItemsLayouts } from "./formItemsLayouts";
 import { UserRoles } from "../../models/User";
 
 const Register: React.FC<{ userRoleToCreate?: UserRoles }> = ({
-  userRoleToCreate = "student",
+  userRoleToCreate = UserRoles.Student,
 }) => {
   return (
     <AuthForm
@@ -91,7 +91,7 @@ const Register: React.FC<{ userRoleToCreate?: UserRoles }> = ({
       </Form.Item>
 
       <Form.Item
-        {...(userRoleToCreate === "student"
+        {...(userRoleToCreate === UserRoles.Student
           ? formItemsLayouts.registerButton
           : {})}
       >

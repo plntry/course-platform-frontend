@@ -22,20 +22,6 @@ export interface AuthFormProps extends FormProps {
   children: React.ReactNode;
 }
 
-export interface AuthResponse {
-  access_token: any;
-  refresh_token: string;
-  token_type: string;
-}
-
 export interface AuthError {
   detail?: string | { msg: string }[];
-}
-
-export interface DecodedAccessToken {
-  id: number;
-  sub: string;
-  role: string;
-  exp: number;
-  token_type: string;
 }

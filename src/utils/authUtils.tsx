@@ -2,7 +2,12 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { LoaderFunction, redirect } from "react-router";
 import { PATHS } from "../routes/paths";
 import { UserRegistration, UserLogin, UserRoles } from "../models/User";
-import { RegisterFormData, LoginFormData, AuthError } from "../models/Auth";
+import {
+  RegisterFormData,
+  LoginFormData,
+  AuthError,
+  AuthRequestType,
+} from "../models/Auth";
 import { useAuthStore } from "../store/useAuthStore";
 import { ArgsProps } from "antd/es/notification";
 import { handleAxiosError } from "./axiosUtils";
@@ -17,7 +22,7 @@ export const getRequestBody = {
       first_name: formData.first_name || "",
       last_name: formData.last_name || "",
       password: formData.password,
-      role: "student",
+      role: UserRoles.Student,
     };
 
     return userBody;
@@ -34,7 +39,7 @@ export const getRequestBody = {
 
 export const handleAuthResponse = async (
   response: AxiosResponse | AxiosError<AuthError>,
-  mode: "login" | "register",
+  mode: AuthRequestType,
   userRoleToCreate: UserRoles,
   notification: NotificationInstance,
   navigate: any
@@ -55,7 +60,7 @@ export const handleAuthResponse = async (
       return;
     }
 
-    if (userRoleToCreate !== "student") {
+    if (userRoleToCreate !== UserRoles.Student) {
       notification.success({
         ...notificationConfig,
         message: `${capitalizeFirstLetter(mode)} Attempt Successful`,
