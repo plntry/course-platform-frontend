@@ -32,11 +32,29 @@ const Register: React.FC<{ userRoleToCreate?: UserRoles }> = ({
         <Input />
       </Form.Item>
 
-      <Form.Item name="first_name" label="First Name">
+      <Form.Item
+        name="first_name"
+        label="First Name"
+        rules={[
+          {
+            required: true,
+            message: "Please input the first name!",
+          },
+        ]}
+      >
         <Input />
       </Form.Item>
 
-      <Form.Item name="last_name" label="Last Name">
+      <Form.Item
+        name="last_name"
+        label="Last Name"
+        rules={[
+          {
+            required: true,
+            message: "Please input the last name!",
+          },
+        ]}
+      >
         <Input />
       </Form.Item>
 
