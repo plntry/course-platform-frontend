@@ -16,24 +16,6 @@ const Register: React.FC<{ userRoleToCreate?: UserRoles }> = ({
       {...formItemsLayouts.formItem}
     >
       <Form.Item
-        name="username"
-        label="Username"
-        rules={[
-          {
-            required: true,
-            message: "Please input your username!",
-            whitespace: true,
-          },
-          {
-            min: 3,
-            message: "Username should have at least 3 characters!",
-          },
-        ]}
-      >
-        <Input />
-      </Form.Item>
-
-      <Form.Item
         name="email"
         label="Email"
         rules={[

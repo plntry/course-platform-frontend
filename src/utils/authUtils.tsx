@@ -13,7 +13,6 @@ import { authApi } from "../api/auth";
 export const getRequestBody = {
   register: (formData: RegisterFormData) => {
     const userBody: UserRegistration = {
-      username: formData.username,
       email: formData.email,
       first_name: formData.first_name || "",
       last_name: formData.last_name || "",
@@ -51,17 +50,20 @@ export const handleAuthResponse = async (
     if (mode === "login") {
       const { data } = await authApi.getToken();
       useAuthStore.getState().setUser(data);
-    } else if (userRoleToCreate !== "student") {
+
+      navigate(PATHS.HOME);
+      return;
+    }
+
+    if (userRoleToCreate !== "student") {
       notification.success({
         ...notificationConfig,
         message: `${capitalizeFirstLetter(mode)} Attempt Successful`,
         description: `The user of ${userRoleToCreate} role was created`,
       });
-
-      return;
     }
 
-    navigate(PATHS.HOME);
+    navigate(PATHS.AUTH);
   } else {
     handleAxiosError(response, notification, notificationConfig);
   }
