@@ -4,5 +4,5 @@ import { authApi } from "../../api/auth";
 
 export async function action() {
   await authApi.logout();
-  return redirect(PATHS.AUTH);
+  return redirect(PATHS.AUTH.link);
 }

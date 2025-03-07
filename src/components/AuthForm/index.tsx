@@ -24,7 +24,7 @@ import { UserRoles } from "../../models/User";
 
 const AuthForm: React.FC<AuthFormProps> = ({
   mode,
-  userRoleToCreate = UserRoles.Student,
+  userRoleToCreate = UserRoles.STUDENT,
   children,
   ...props
 }) => {
@@ -39,6 +39,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
     modeToNavigate === "login"
       ? "Already have an account?"
       : "Don't have an account?";
+  const isStudentRegistration = userRoleToCreate === UserRoles.STUDENT;
 
   const onFinish = async (formData: RegisterFormData | LoginFormData) => {
     const response: AxiosResponse | AxiosError<AuthError> =
@@ -60,9 +61,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
       vertical
       justify="center"
       align="center"
-      className={
-        userRoleToCreate === UserRoles.Student ? classes.authContainer : ""
-      }
+      className={isStudentRegistration ? classes.authContainer : ""}
     >
       <Flex justify="center" align="center">
         <img className={classes.logo} src={logo} alt="Logo" />

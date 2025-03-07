@@ -1,7 +1,9 @@
+export const GUEST_ROLE = "guest" as const;
+
 export enum UserRoles {
-  Admin = "admin",
-  Teacher = "teacher",
-  Student = "student",
+  STUDENT = "student",
+  TEACHER = "teacher",
+  ADMIN = "admin",
 }
 
 export interface UserRegistration {
@@ -9,7 +11,7 @@ export interface UserRegistration {
   password: string;
   first_name: string;
   last_name: string;
-  role: UserRoles.Student;
+  role: UserRoles.STUDENT;
 }
 
 export interface UserLogin {

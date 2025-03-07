@@ -22,7 +22,7 @@ export const getRequestBody = {
       first_name: formData.first_name || "",
       last_name: formData.last_name || "",
       password: formData.password,
-      role: UserRoles.Student,
+      role: UserRoles.STUDENT,
     };
 
     return userBody;
@@ -56,11 +56,11 @@ export const handleAuthResponse = async (
       const { data } = await authApi.getToken();
       useAuthStore.getState().setUser(data);
 
-      navigate(PATHS.HOME);
+      navigate(PATHS.HOME.link);
       return;
     }
 
-    if (userRoleToCreate !== UserRoles.Student) {
+    if (userRoleToCreate !== UserRoles.STUDENT) {
       notification.success({
         ...notificationConfig,
         message: `${capitalizeFirstLetter(mode)} Attempt Successful`,
@@ -68,7 +68,7 @@ export const handleAuthResponse = async (
       });
     }
 
-    navigate(PATHS.AUTH);
+    navigate(PATHS.AUTH.link);
   } else {
     handleAxiosError(response, notification, notificationConfig);
   }
@@ -82,7 +82,7 @@ export const rootLoader: LoaderFunction = async () => {
   }
 
   if (!useAuthStore.getState().isAuthenticated) {
-    return redirect(PATHS.AUTH);
+    return redirect(PATHS.AUTH.link);
   }
 
   return null;
