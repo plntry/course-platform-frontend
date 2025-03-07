@@ -43,13 +43,8 @@ export const authApi = {
       return getAxiosError(error);
     }
   },
-  logout: async () => {
-    return await api.post(getAuthUrl(requestUrls.logout));
-  },
-  getToken: async () => {
-    return await api.get(getAuthUrl(requestUrls.getToken));
-  },
-  refreshToken: async () => {
-    return await api.post(getAuthUrl(requestUrls.refreshToken));
-  },
+  logout: async () => await api.post(getAuthUrl(requestUrls.logout)),
+  getToken: async () => await api.get(getAuthUrl(requestUrls.getToken)),
+  refreshToken: async () =>
+    await api.post(getAuthUrl(requestUrls.refreshToken)),
 };

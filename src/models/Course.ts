@@ -4,10 +4,13 @@ export interface Course {
   id: number;
   title: string;
   description: string;
+  category: string;
+  rating: number;
   lessons_count: number;
   lessons_duration: number;
   files: string[];
 }
+
 
 export interface CourseActionConfig {
   title: string;
