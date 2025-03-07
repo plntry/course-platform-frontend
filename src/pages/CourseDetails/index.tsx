@@ -1,10 +1,7 @@
 import { useLoaderData, Link, Params, useNavigate } from "react-router";
 import { Button, Typography, Divider, Row, Col, Flex, theme } from "antd";
 import { RollbackOutlined } from "@ant-design/icons";
-import {
-  userAvailableCourseActionsDetailsPage,
-  userAvailableCourseActions,
-} from "../../constants/availableCourseActions";
+import { userAvailableCourseActionsDetailsPage } from "../../constants/availableCourseActions";
 import { Course, CourseActionConfig } from "../../models/Course";
 import CourseActionsComp from "../../components/CourseActions";
 import { coursesApi } from "../../api/courses";

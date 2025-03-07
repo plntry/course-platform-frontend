@@ -9,6 +9,7 @@ import {
   MenuItem,
 } from "../../constants/availableHeaderTabs";
 import { useAuthStore } from "../../store/useAuthStore";
+import { GUEST_ROLE } from "../../models/User";
 
 const { Header: AntHeader } = Layout;
 
@@ -20,7 +21,7 @@ const Header: React.FC = () => {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  const role = useAuthStore((state) => state.user?.role) || "guest";
+  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
 
   const menuItems: MenuItem[] = availableHeaderTabs[role];
 

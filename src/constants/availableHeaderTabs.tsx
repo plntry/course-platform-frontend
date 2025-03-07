@@ -35,5 +35,3 @@ for (const role in ROLE_PATHS) {
 
   availableHeaderTabs[role] = tabs;
 }
-
-console.log(availableHeaderTabs);

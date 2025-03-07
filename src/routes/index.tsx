@@ -45,7 +45,8 @@ export const routes = [
       {
         path: PATHS.LOGOUT.link,
         element: <ProtectedRoute allowedRoles={[...PATHS.LOGOUT.roles]} />,
-        children: [{ index: true, action: logoutAction }],
+        children: [{ index: true }],
+        action: logoutAction,
       },
       {
         path: PATHS.NOT_FOUND.link,
