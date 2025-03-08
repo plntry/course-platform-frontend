@@ -9,6 +9,12 @@ export interface Course {
   lessons_count: number;
   lessons_duration: number;
   files: string[];
+  teacher: {
+    first_name: string;
+    last_name: string;
+    role: string;
+    is_active: boolean;
+  };
 }
 
 

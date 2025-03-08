@@ -3,15 +3,6 @@ import { UserRoles } from "../models/User";
 import { PATHS } from "../routes/paths";
 
 export const courseActions: CourseActions = {
-  enroll: {
-    title: "Enroll",
-    link: PATHS.HOME.link, // TODO: Update with needed link / action
-    shouldBeShownInDetailsPage: true,
-    buttonProps: {
-      type: "primary",
-      disabled: true,
-    },
-  },
   more: {
     title: "More...",
     link: PATHS.COURSE.link,
@@ -21,10 +12,20 @@ export const courseActions: CourseActions = {
       propName: "id",
     },
   },
+  enroll: {
+    title: "Enroll",
+    link: PATHS.HOME.link, // TODO: Update with needed link / action
+    shouldBeShownInDetailsPage: true,
+    buttonProps: {
+      type: "primary",
+      disabled: true,
+    },
+  },
 };
 
 export const userAvailableCourseActions: UserAvailableCourseActions = {
   [UserRoles.STUDENT]: [courseActions.enroll, courseActions.more],
+  [UserRoles.TEACHER]: [courseActions.more],
 };
 
 // details page should include only actions with shouldBeShownInDetailsPage === true

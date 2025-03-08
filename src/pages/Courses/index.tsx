@@ -1,23 +1,26 @@
 import { useState } from "react";
 import { useLoaderData } from "react-router";
-import { Table, Input, Flex, Typography, theme, Badge, Tag, Rate } from "antd";
+import { Table, Input, Flex, Typography, theme, Tag, Rate } from "antd";
 import type { TableColumnsType, GetProps } from "antd";
 import { Course, CourseActionConfig } from "../../models/Course";
 import { userAvailableCourseActions } from "../../constants/availableCourseActions";
 import CourseActionsComp from "../../components/CourseActions";
 import { coursesApi } from "../../api/courses";
 import { getCategoryColor } from "../../utils/colorsUtils";
+import { useAuthStore } from "../../store/useAuthStore";
+import { GUEST_ROLE } from "../../models/User";
 
 const { Search } = Input;
 type SearchProps = GetProps<typeof Search>;
 
 const Courses: React.FC = () => {
+  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   const { token: themeToken } = theme.useToken();
   const courses = useLoaderData();
 
   const [filteredCourses, setFilteredCourses] = useState<Course[]>(courses);
   const availableActions: CourseActionConfig[] =
-    userAvailableCourseActions.student;
+    userAvailableCourseActions[role];
 
   const columns: TableColumnsType<Course> = [
     {

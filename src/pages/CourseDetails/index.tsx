@@ -1,22 +1,36 @@
 import { useLoaderData, Link, Params, useNavigate } from "react-router";
-import { Button, Typography, Divider, Row, Col, Flex, theme } from "antd";
+import {
+  Button,
+  Typography,
+  Divider,
+  Row,
+  Col,
+  Flex,
+  theme,
+  Tag,
+  Rate,
+} from "antd";
 import { RollbackOutlined } from "@ant-design/icons";
 import { userAvailableCourseActionsDetailsPage } from "../../constants/availableCourseActions";
 import { Course, CourseActionConfig } from "../../models/Course";
 import CourseActionsComp from "../../components/CourseActions";
 import { coursesApi } from "../../api/courses";
 import { PATHS } from "../../routes/paths";
+import { useAuthStore } from "../../store/useAuthStore";
+import { GUEST_ROLE } from "../../models/User";
+import { getCategoryColor } from "../../utils/colorsUtils";
 
 const { Title, Paragraph, Text } = Typography;
 
 const CourseDetails: React.FC = () => {
+  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   const navigate = useNavigate();
   const {
     token: { colorPrimaryActive, colorTextSecondary, colorTextBase },
   } = theme.useToken();
 
   const availableActions: CourseActionConfig[] =
-    userAvailableCourseActionsDetailsPage.student;
+    userAvailableCourseActionsDetailsPage[role];
 
   const course: Course = useLoaderData();
   if (!course) {
@@ -49,9 +63,17 @@ const CourseDetails: React.FC = () => {
               height: "100%",
             }}
           >
-            <Title level={2} style={{ color: colorPrimaryActive }}>
-              {course.title}
-            </Title>
+            <Flex vertical align="center" gap={0}>
+              <Title level={2} style={{ color: colorPrimaryActive }}>
+                {course.title}
+              </Title>
+              <Tag
+                style={{ margin: 0 }}
+                color={getCategoryColor(course.category)}
+              >
+                {course.category}
+              </Tag>
+            </Flex>
 
             <Paragraph
               style={{
@@ -64,6 +86,20 @@ const CourseDetails: React.FC = () => {
             >
               {course.description}
             </Paragraph>
+
+            <Flex justify="center" gap={5} wrap>
+              <Text
+                strong
+                style={{ fontSize: "16px", color: colorPrimaryActive }}
+              >
+                Teacher:
+              </Text>
+              <Paragraph style={{ fontSize: "16px", color: colorTextBase }}>
+                {course.teacher.first_name} {course.teacher.last_name}
+              </Paragraph>
+            </Flex>
+
+            <Rate disabled allowHalf defaultValue={course.rating} />
 
             <Divider />
 
