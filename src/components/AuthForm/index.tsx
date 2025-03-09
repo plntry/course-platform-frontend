@@ -14,9 +14,9 @@ import {
   LoginFormData,
   RegisterFormData,
   AuthRequestType,
-  AuthError,
   AuthFormProps,
 } from "../../models/Auth";
+import { APIError } from "../../models/APIResponse";
 import { authApi } from "../../api/auth";
 import logo from "../../assets/logo.png";
 import classes from "./AuthForm.module.css";
@@ -42,7 +42,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
   const isStudentRegistration = userRoleToCreate === UserRoles.STUDENT;
 
   const onFinish = async (formData: RegisterFormData | LoginFormData) => {
-    const response: AxiosResponse | AxiosError<AuthError> =
+    const response: AxiosResponse | AxiosError<APIError> =
       mode === "register"
         ? await authApi.register(formData as RegisterFormData, userRoleToCreate)
         : await authApi.login(formData as LoginFormData);

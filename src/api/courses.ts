@@ -6,6 +6,8 @@ export const coursesApi = {
   getAll: async () => api.get(COURSES_BASE_URL),
   getById: async (courseId: string) =>
     api.get(`${COURSES_BASE_URL}/${courseId}`),
+  getAllForStudent: async (studentId: string) =>
+    await api.get(`/student/getCoursesOnUser/${studentId}`),
   create: async (body: any) =>
     await api.post(`${COURSES_BASE_URL}/create_course`, body),
   update: async (courseId: string, body: any) =>

@@ -1,18 +1,7 @@
-import { useLoaderData, Link, Params, useNavigate } from "react-router";
-import {
-  Button,
-  Typography,
-  Divider,
-  Row,
-  Col,
-  Flex,
-  theme,
-  Tag,
-  Rate,
-} from "antd";
-import { RollbackOutlined } from "@ant-design/icons";
+import { useLoaderData, Params, useNavigate } from "react-router";
+import { Typography, Divider, Row, Col, Flex, theme, Tag, Rate } from "antd";
 import { userAvailableCourseActionsDetailsPage } from "../../constants/availableCourseActions";
-import { Course, CourseActionConfig } from "../../models/Course";
+import { GetCourse, CourseActionConfig } from "../../models/Course";
 import CourseActionsComp from "../../components/CourseActions";
 import { coursesApi } from "../../api/courses";
 import { PATHS } from "../../routes/paths";
@@ -32,7 +21,7 @@ const CourseDetails: React.FC = () => {
   const availableActions: CourseActionConfig[] =
     userAvailableCourseActionsDetailsPage[role];
 
-  const course: Course = useLoaderData();
+  const course: GetCourse = useLoaderData();
   if (!course) {
     navigate(PATHS.HOME.link);
   }
@@ -41,19 +30,6 @@ const CourseDetails: React.FC = () => {
     <>
       {course && (
         <Flex vertical gap={20} style={{ height: "100%" }}>
-          <Link
-            to={".."}
-            relative="path"
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
-            <Button type="dashed">
-              Go Back
-              <RollbackOutlined />
-            </Button>
-          </Link>
           <Flex
             vertical
             gap={25}

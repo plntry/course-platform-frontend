@@ -2,7 +2,6 @@ export const getCategoryColor = (category: string) => {
   const colors = [
     "blue",
     "green",
-    "volcano",
     "gold",
     "purple",
     "magenta",

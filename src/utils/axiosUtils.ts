@@ -1,7 +1,15 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { ArgsProps } from "antd/es/notification";
 import { NotificationInstance } from "antd/es/notification/interface";
-import { AuthError } from "../models/Auth";
+import { APIError } from "../models/APIResponse";
+import { useAuthStore } from "../store/useAuthStore";
+
+const defaultNotificationConfig: ArgsProps = {
+  message: "Attempt Unsuccessful",
+  description: "An unexpected error occurred.",
+  placement: "topRight",
+  duration: 10,
+};
 
 export function getAxiosError(error: unknown) {
   if (axios.isAxiosError(error)) {
@@ -11,16 +19,50 @@ export function getAxiosError(error: unknown) {
   throw new Error("Unexpected error occurred while making a request.");
 }
 
+export const handleAxiosRequest = async <T>(
+  requestFunction: () => Promise<AxiosResponse<T>>,
+  notification: NotificationInstance,
+  customConfig?: Partial<ArgsProps>
+) => {
+  const notificationConfig: ArgsProps = {
+    ...defaultNotificationConfig,
+    ...customConfig,
+  };
+
+  try {
+    const response: AxiosResponse = await requestFunction();
+    // console.log({ response });
+
+    if (response?.status && response.status >= 200 && response.status < 300) {
+      notification.success({
+        ...notificationConfig,
+        message: `Attempt Successful`,
+        description: `${response.statusText}!`,
+      });
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.status === 401) {
+        const { checkAuth } = useAuthStore.getState();
+        await checkAuth();
+
+        await handleAxiosRequest(requestFunction, notification);
+      } else {
+        handleAxiosError(error, notification, notificationConfig);
+      }
+    } else {
+      console.error("Unexpected error:", error);
+    }
+  }
+};
+
 export const handleAxiosError = (
-  error: AxiosError<AuthError>,
+  error: AxiosError<APIError>,
   notification?: NotificationInstance,
   customConfig?: Partial<ArgsProps>
 ) => {
-  const defaultConfig: ArgsProps = {
-    message: "Request Failed",
-    description: "An unexpected error occurred.",
-    placement: "topRight",
-    duration: 10,
+  const notificationConfig: ArgsProps = {
+    ...defaultNotificationConfig,
     ...customConfig,
   };
 
@@ -35,10 +77,10 @@ export const handleAxiosError = (
       errorDescription = errorDetail;
     }
 
-    defaultConfig.description = errorDescription;
+    notificationConfig.description = errorDescription;
   }
 
   if (notification) {
-    notification.error(defaultConfig);
+    notification.error(notificationConfig);
   }
 };

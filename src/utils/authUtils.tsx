@@ -1,13 +1,18 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { LoaderFunction, redirect } from "react-router";
-import { PATHS } from "../routes/paths";
-import { UserRegistration, UserLogin, UserRoles } from "../models/User";
+import { PATHS, ROLE_PATHS } from "../routes/paths";
+import {
+  UserRegistration,
+  UserLogin,
+  UserRoles,
+  GUEST_ROLE,
+} from "../models/User";
 import {
   RegisterFormData,
   LoginFormData,
-  AuthError,
   AuthRequestType,
 } from "../models/Auth";
+import { APIError } from "../models/APIResponse";
 import { useAuthStore } from "../store/useAuthStore";
 import { ArgsProps } from "antd/es/notification";
 import { handleAxiosError } from "./axiosUtils";
@@ -38,7 +43,7 @@ export const getRequestBody = {
 };
 
 export const handleAuthResponse = async (
-  response: AxiosResponse | AxiosError<AuthError>,
+  response: AxiosResponse | AxiosError<APIError>,
   mode: AuthRequestType,
   userRoleToCreate: UserRoles,
   notification: NotificationInstance,
@@ -74,16 +79,21 @@ export const handleAuthResponse = async (
   }
 };
 
-export const rootLoader: LoaderFunction = async () => {
+export const rootLoader: LoaderFunction = async ({ request }) => {
   const { isAuthenticated, checkAuth } = useAuthStore.getState();
+  const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
+  const currentPath = new URL(request.url).pathname;
 
   if (!isAuthenticated) {
     await checkAuth();
   }
 
-  if (!useAuthStore.getState().isAuthenticated) {
+  const { isAuthenticated: updatedIsAuthenticated } = useAuthStore.getState();
+
+  if (!updatedIsAuthenticated && !guestAccessiblePaths.has(currentPath)) {
     return redirect(PATHS.AUTH.link);
   }
 
   return null;
 };
+

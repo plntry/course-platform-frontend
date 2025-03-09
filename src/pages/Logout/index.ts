@@ -1,8 +1,10 @@
 import { redirect } from "react-router";
 import { PATHS } from "../../routes/paths";
-import { authApi } from "../../api/auth";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export async function action() {
-  await authApi.logout();
+  const { logout } = useAuthStore.getState();
+  await logout();
+
   return redirect(PATHS.AUTH.link);
 }

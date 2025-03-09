@@ -11,6 +11,8 @@ import Courses, { loader as coursesLoader } from "../pages/Courses";
 import CourseDetails, {
   loader as courseDetailsLoader,
 } from "../pages/CourseDetails";
+import NewCoursePage from "../pages/NewCourse";
+import CoursesLayout from "../pages/CoursesLayout";
 
 export const routes = [
   {
@@ -25,20 +27,36 @@ export const routes = [
         element: <Home />,
       },
       {
+        id: "coursesRoot",
         path: PATHS.COURSES.link,
-        element: <ProtectedRoute allowedRoles={[...PATHS.COURSES.roles]} />,
-        children: [
-          { index: true, element: <Courses />, loader: coursesLoader },
-        ],
-      },
-      {
-        path: PATHS.COURSE.link,
-        element: <ProtectedRoute allowedRoles={[...PATHS.COURSE.roles]} />,
+        element: <CoursesLayout />,
         children: [
           {
             index: true,
-            element: <CourseDetails />,
+            element: (
+              <ProtectedRoute allowedRoles={[...PATHS.COURSES.roles]}>
+                <Courses />
+              </ProtectedRoute>
+            ),
+            loader: coursesLoader,
+          },
+          {
+            id: "courseDetails",
+            path: PATHS.COURSE.link,
+            element: (
+              <ProtectedRoute allowedRoles={[...PATHS.COURSE.roles]}>
+                <CourseDetails />
+              </ProtectedRoute>
+            ),
             loader: courseDetailsLoader,
+          },
+          {
+            path: PATHS.NEW_COURSE.link,
+            element: (
+              <ProtectedRoute allowedRoles={[...PATHS.NEW_COURSE.roles]}>
+                <NewCoursePage />
+              </ProtectedRoute>
+            ),
           },
         ],
       },

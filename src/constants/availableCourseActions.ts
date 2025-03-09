@@ -1,5 +1,5 @@
 import { CourseActions, UserAvailableCourseActions } from "../models/Course";
-import { UserRoles } from "../models/User";
+import { GUEST_ROLE, UserRoles } from "../models/User";
 import { PATHS } from "../routes/paths";
 
 export const courseActions: CourseActions = {
@@ -26,6 +26,7 @@ export const courseActions: CourseActions = {
 export const userAvailableCourseActions: UserAvailableCourseActions = {
   [UserRoles.STUDENT]: [courseActions.enroll, courseActions.more],
   [UserRoles.TEACHER]: [courseActions.more],
+  [GUEST_ROLE]: [courseActions.more],
 };
 
 // details page should include only actions with shouldBeShownInDetailsPage === true

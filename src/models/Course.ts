@@ -1,6 +1,6 @@
 import { ButtonProps } from "antd";
 
-export interface Course {
+export interface GetCourse {
   id: number;
   title: string;
   description: string;
@@ -17,6 +17,15 @@ export interface Course {
   };
 }
 
+export interface CreateCourse {
+  title: string;
+  description: string;
+  category: string;
+  rating: number;
+  lessons_count: number;
+  lessons_duration: number;
+  files: string[];
+}
 
 export interface CourseActionConfig {
   title: string;
@@ -25,7 +34,7 @@ export interface CourseActionConfig {
   shouldBeShownInDetailsPage: boolean;
   dynamicParam?: {
     stringToReplace: string;
-    propName: keyof Course;
+    propName: keyof GetCourse;
   };
 }
 

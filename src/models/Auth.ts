@@ -21,7 +21,3 @@ export interface AuthFormProps extends FormProps {
   userRoleToCreate?: UserRoles;
   children: React.ReactNode;
 }
-
-export interface AuthError {
-  detail?: string | { msg: string }[];
-}

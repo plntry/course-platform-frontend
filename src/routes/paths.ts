@@ -7,15 +7,19 @@ export const PATHS = {
   },
   AUTH: {
     link: "/auth",
-    roles: [...Object.values(UserRoles), GUEST_ROLE],
+    roles: [GUEST_ROLE],
   },
   COURSES: {
     link: "courses",
     roles: [...Object.values(UserRoles), GUEST_ROLE],
   },
   COURSE: {
-    link: "courses/:courseId",
+    link: ":courseId",
     roles: [...Object.values(UserRoles), GUEST_ROLE],
+  },
+  NEW_COURSE: {
+    link: "new",
+    roles: [UserRoles.TEACHER],
   },
   STUDENTS: {
     link: "students",
