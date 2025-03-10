@@ -31,7 +31,10 @@ export interface CourseActionConfig {
   title: string;
   link: string;
   buttonProps?: ButtonProps;
-  shouldBeShownInDetailsPage: boolean;
+  visible: {
+    coursesPage: boolean;
+    detailsPage: boolean;
+  };
   dynamicParam?: {
     stringToReplace: string;
     propName: keyof GetCourse;

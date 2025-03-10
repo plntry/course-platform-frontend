@@ -1,8 +1,8 @@
-import { PATHS, ROLE_PATHS } from "../routes/paths";
-import type { MenuProps } from "antd";
+import { MenuProps } from "antd";
 import { HomeOutlined, LoginOutlined, LogoutOutlined } from "@ant-design/icons";
+import { UserRoles } from "../models/User";
+import { PATHS, ROLE_PATHS } from "../routes/paths";
 import classes from "../components/Header/Header.module.css";
-import { GUEST_ROLE } from "../models/User";
 
 export type MenuItem = Required<MenuProps>["items"][number];
 
@@ -10,7 +10,7 @@ type UserAvailableHeaderTabs = {
   [role: string]: MenuItem[];
 };
 
-const headerTabs = [
+export const headerTabs = [
   {
     key: PATHS.HOME.link,
     label: "Home",
@@ -19,6 +19,10 @@ const headerTabs = [
   {
     key: PATHS.COURSES.link,
     label: "All Courses",
+  },
+  {
+    key: PATHS.MY_COURSES.link,
+    label: "My Courses",
   },
   {
     key: PATHS.LOGOUT.link,
@@ -37,13 +41,10 @@ const headerTabs = [
 export const availableHeaderTabs: UserAvailableHeaderTabs = {};
 
 for (const role in ROLE_PATHS) {
-  const paths = ROLE_PATHS[role];
-  const tabs = headerTabs.filter((tab) => {
-    if (role === GUEST_ROLE) {
-    }
+  const userRole = role as UserRoles;
+  const paths = ROLE_PATHS[userRole];
 
-    return paths.includes(tab.key);
-  });
+  const tabs = headerTabs.filter((tab) => paths.includes(tab.key));
 
   availableHeaderTabs[role] = tabs;
 }

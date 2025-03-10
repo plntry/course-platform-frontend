@@ -7,12 +7,17 @@ import { action as logoutAction } from "../pages/Logout";
 import RootLayout from "../pages/RootLayout";
 import Loader from "../components/Loader";
 import ProtectedRoute from "../components/ProtectedRoute";
-import Courses, { loader as coursesLoader } from "../pages/Courses";
+import AllCourses, { loader as allCoursesLoader } from "../pages/AllCourses";
 import CourseDetails, {
   loader as courseDetailsLoader,
 } from "../pages/CourseDetails";
 import NewCoursePage from "../pages/NewCourse";
 import CoursesLayout from "../pages/CoursesLayout";
+import EditCoursePage from "../pages/EditCourse";
+import MyCourses, { loader as myCoursesLoader } from "../pages/MyCourses";
+import DeleteCoursePage, {
+  action as deleteCourseAction,
+} from "../pages/DeleteCourse";
 
 export const routes = [
   {
@@ -35,20 +40,51 @@ export const routes = [
             index: true,
             element: (
               <ProtectedRoute allowedRoles={[...PATHS.COURSES.roles]}>
-                <Courses />
+                <AllCourses />
               </ProtectedRoute>
             ),
-            loader: coursesLoader,
+            loader: allCoursesLoader,
+          },
+          {
+            path: PATHS.MY_COURSES.link,
+            element: (
+              <ProtectedRoute allowedRoles={[...PATHS.MY_COURSES.roles]}>
+                <MyCourses />
+              </ProtectedRoute>
+            ),
+            loader: myCoursesLoader,
           },
           {
             id: "courseDetails",
             path: PATHS.COURSE.link,
-            element: (
-              <ProtectedRoute allowedRoles={[...PATHS.COURSE.roles]}>
-                <CourseDetails />
-              </ProtectedRoute>
-            ),
             loader: courseDetailsLoader,
+            children: [
+              {
+                index: true,
+                element: (
+                  <ProtectedRoute allowedRoles={[...PATHS.COURSE.roles]}>
+                    <CourseDetails />
+                  </ProtectedRoute>
+                ),
+              },
+              {
+                path: PATHS.EDIT_COURSE.link,
+                element: (
+                  <ProtectedRoute allowedRoles={[...PATHS.EDIT_COURSE.roles]}>
+                    <EditCoursePage />
+                  </ProtectedRoute>
+                ),
+              },
+              {
+                path: PATHS.DELETE_COURSE.link,
+                element: (
+                  <ProtectedRoute allowedRoles={[...PATHS.DELETE_COURSE.roles]}>
+                    <DeleteCoursePage />
+                  </ProtectedRoute>
+                ),
+                action: deleteCourseAction,
+              },
+            ],
           },
           {
             path: PATHS.NEW_COURSE.link,

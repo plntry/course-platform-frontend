@@ -22,6 +22,7 @@ export function getAxiosError(error: unknown) {
 export const handleAxiosRequest = async <T>(
   requestFunction: () => Promise<AxiosResponse<T>>,
   notification: NotificationInstance,
+  userMessageSuccess: string,
   customConfig?: Partial<ArgsProps>
 ) => {
   const notificationConfig: ArgsProps = {
@@ -37,16 +38,24 @@ export const handleAxiosRequest = async <T>(
       notification.success({
         ...notificationConfig,
         message: `Attempt Successful`,
-        description: `${response.statusText}!`,
+        description: userMessageSuccess,
       });
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.status === 401) {
         const { checkAuth } = useAuthStore.getState();
-        await checkAuth();
+        // await checkAuth();
 
-        await handleAxiosRequest(requestFunction, notification);
+        // const { user: updatedUser } = useAuthStore.getState();
+        // console.log({ updatedUser });
+
+        await handleAxiosRequest(
+          requestFunction,
+          notification,
+          userMessageSuccess,
+          customConfig
+        );
       } else {
         handleAxiosError(error, notification, notificationConfig);
       }

@@ -1,39 +1,77 @@
 import { CourseActions, UserAvailableCourseActions } from "../models/Course";
 import { GUEST_ROLE, UserRoles } from "../models/User";
 import { PATHS } from "../routes/paths";
+import { getUserAvailableCourseActionsByPage } from "../utils/courseUtils";
 
 export const courseActions: CourseActions = {
   more: {
     title: "More...",
     link: PATHS.COURSE.link,
-    shouldBeShownInDetailsPage: false,
     dynamicParam: {
-      stringToReplace: PATHS.COURSE.link,
+      stringToReplace: ":courseId",
       propName: "id",
+    },
+    visible: {
+      coursesPage: true,
+      detailsPage: false,
     },
   },
   enroll: {
     title: "Enroll",
     link: PATHS.HOME.link, // TODO: Update with needed link / action
-    shouldBeShownInDetailsPage: true,
+    visible: {
+      coursesPage: true,
+      detailsPage: true,
+    },
     buttonProps: {
       type: "primary",
       disabled: true,
+    },
+  },
+  edit: {
+    title: "Edit",
+    link: `${PATHS.COURSE.link}/${PATHS.EDIT_COURSE.link}`,
+    dynamicParam: {
+      stringToReplace: ":courseId",
+      propName: "id",
+    },
+    visible: {
+      coursesPage: true,
+      detailsPage: true,
+    },
+    buttonProps: {
+      type: "dashed",
+    },
+  },
+  delete: {
+    title: "Delete",
+    link: `${PATHS.COURSE.link}/${PATHS.DELETE_COURSE.link}`,
+    dynamicParam: {
+      stringToReplace: ":courseId",
+      propName: "id",
+    },
+    visible: {
+      coursesPage: true,
+      detailsPage: true,
+    },
+    buttonProps: {
+      type: "dashed",
     },
   },
 };
 
 export const userAvailableCourseActions: UserAvailableCourseActions = {
   [UserRoles.STUDENT]: [courseActions.enroll, courseActions.more],
-  [UserRoles.TEACHER]: [courseActions.more],
+  [UserRoles.TEACHER]: [
+    courseActions.edit,
+    courseActions.delete,
+    courseActions.more,
+  ],
   [GUEST_ROLE]: [courseActions.more],
 };
 
-// details page should include only actions with shouldBeShownInDetailsPage === true
+// each page should include only actions which should be visible on that page
+export const userAvailableCourseActionsCoursesPage: UserAvailableCourseActions =
+  getUserAvailableCourseActionsByPage("coursesPage");
 export const userAvailableCourseActionsDetailsPage: UserAvailableCourseActions =
-  Object.keys(userAvailableCourseActions).reduce((acc, role) => {
-    acc[role] = userAvailableCourseActions[role].filter(
-      (action) => action.shouldBeShownInDetailsPage
-    );
-    return acc;
-  }, {} as UserAvailableCourseActions);
+  getUserAvailableCourseActionsByPage("detailsPage");

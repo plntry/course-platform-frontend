@@ -1,15 +1,16 @@
 import React from "react";
 import { Link, useNavigate, useSubmit, useLocation } from "react-router";
-import { PATHS } from "../../routes/paths";
-import { Layout, Menu, theme } from "antd";
+import { PATHS, ROLE_PATHS } from "../../routes/paths";
+import { Layout, Menu, MenuProps, theme } from "antd";
+import { HomeOutlined, LoginOutlined, LogoutOutlined } from "@ant-design/icons";
 import classes from "./Header.module.css";
 import logo from "../../assets/logo.png";
+import { useAuthStore } from "../../store/useAuthStore";
+import { GUEST_ROLE, UserRoles } from "../../models/User";
 import {
   availableHeaderTabs,
   MenuItem,
 } from "../../constants/availableHeaderTabs";
-import { useAuthStore } from "../../store/useAuthStore";
-import { GUEST_ROLE } from "../../models/User";
 
 const { Header: AntHeader } = Layout;
 
@@ -22,13 +23,8 @@ const Header: React.FC = () => {
   } = theme.useToken();
 
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-
   const menuItems: MenuItem[] = availableHeaderTabs[role];
-
-  const selectedKey =
-    location.pathname.startsWith("/") && location.pathname !== PATHS.HOME.link
-      ? location.pathname.substring(1)
-      : location.pathname;
+  const selectedKey = location.pathname;
 
   const handleMenuItemClick = ({ key }: { key: string }) => {
     if (key === PATHS.LOGOUT.link) {

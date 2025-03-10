@@ -11,14 +11,16 @@ import {
   UploadFile,
 } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import { CreateCourse } from "../../models/Course";
+import { CreateCourse, GetCourse } from "../../models/Course";
 import { useState } from "react";
 import { coursesApi } from "../../api/courses";
 import { handleAxiosRequest } from "../../utils/axiosUtils";
 
 const { Dragger } = Upload;
 
-const CourseForm: React.FC = () => {
+const CourseForm: React.FC<{ course?: GetCourse | undefined }> = ({
+  course,
+}) => {
   const { token: themeToken } = theme.useToken();
   const [notification, contextHolder] = antdNotification.useNotification();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
@@ -42,9 +44,21 @@ const CourseForm: React.FC = () => {
       ...formData,
       files: fileList.map((file) => file.name),
     };
-    // console.log("Complete form data:", courseData);
+    console.log("Complete form data:", courseData);
 
-    await handleAxiosRequest(() => coursesApi.create(courseData), notification);
+    let requestFunction = coursesApi.create(courseData);
+    let userMessageSuccess = "The course was created!";
+
+    if (course) {
+      requestFunction = coursesApi.update(course.id + "", courseData);
+      userMessageSuccess = "The course was updated!";
+    }
+
+    await handleAxiosRequest(
+      () => requestFunction,
+      notification,
+      userMessageSuccess
+    );
   };
 
   return (
@@ -53,10 +67,17 @@ const CourseForm: React.FC = () => {
         level={2}
         style={{ color: themeToken.colorPrimaryActive }}
       >
-        New Course
+        {course ? "Edit" : "New"} Course
       </Typography.Title>
       <Form
-        initialValues={{ rating: 0 }}
+        initialValues={{
+          title: course?.title || "",
+          description: course?.description || "",
+          category: course?.category || "",
+          rating: course?.rating || 0,
+          lessons_count: course?.lessons_count || "",
+          lessons_duration: course?.lessons_duration || "",
+        }}
         onFinish={onFinish}
         style={{
           maxWidth: "500px",

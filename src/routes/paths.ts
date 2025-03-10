@@ -10,12 +10,24 @@ export const PATHS = {
     roles: [GUEST_ROLE],
   },
   COURSES: {
-    link: "courses",
+    link: "/courses",
     roles: [...Object.values(UserRoles), GUEST_ROLE],
   },
+  MY_COURSES: {
+    link: "/courses/my",
+    roles: [UserRoles.TEACHER, UserRoles.STUDENT],
+  },
   COURSE: {
-    link: ":courseId",
+    link: "/courses/:courseId",
     roles: [...Object.values(UserRoles), GUEST_ROLE],
+  },
+  EDIT_COURSE: {
+    link: "edit",
+    roles: [UserRoles.TEACHER],
+  },
+  DELETE_COURSE: {
+    link: "delete",
+    roles: [UserRoles.TEACHER],
   },
   NEW_COURSE: {
     link: "new",

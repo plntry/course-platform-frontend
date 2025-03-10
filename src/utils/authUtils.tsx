@@ -82,7 +82,11 @@ export const handleAuthResponse = async (
 export const rootLoader: LoaderFunction = async ({ request }) => {
   const { isAuthenticated, checkAuth } = useAuthStore.getState();
   const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
-  const currentPath = new URL(request.url).pathname;
+  const pathname = new URL(request.url).pathname;
+  const currentPath =
+    pathname.startsWith("/") && pathname !== PATHS.HOME.link
+      ? pathname.substring(1)
+      : pathname;
 
   if (!isAuthenticated) {
     await checkAuth();

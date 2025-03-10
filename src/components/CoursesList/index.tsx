@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link } from "react-router";
 import {
   Table,
   Input,
@@ -13,10 +13,9 @@ import {
 } from "antd";
 import type { TableColumnsType, GetProps } from "antd";
 import { GetCourse, CourseActionConfig } from "../../models/Course";
-import { userAvailableCourseActions } from "../../constants/availableCourseActions";
-import CourseActionsComp from "../../components/CourseActions";
-import { coursesApi } from "../../api/courses";
-import { getCategoryColor } from "../../utils/colorsUtils";
+import { userAvailableCourseActionsCoursesPage } from "../../constants/availableCourseActions";
+import CourseActionsComp from "../CourseActions";
+import { getCategoryColor } from "../../utils/courseUtils";
 import { useAuthStore } from "../../store/useAuthStore";
 import { GUEST_ROLE, UserRoles } from "../../models/User";
 import { PATHS } from "../../routes/paths";
@@ -25,17 +24,25 @@ const { Search } = Input;
 const { useBreakpoint } = Grid;
 type SearchProps = GetProps<typeof Search>;
 
-const Courses: React.FC = () => {
+const CoursesList: React.FC<{
+  courses: GetCourse[];
+  mode?: string | null;
+}> = ({ courses, mode = "all" }) => {
+  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
+  const isTeacher = role === UserRoles.TEACHER;
+  const availableActions: CourseActionConfig[] =
+    userAvailableCourseActionsCoursesPage[role];
+
   const { token: themeToken } = theme.useToken();
   const screens = useBreakpoint();
   const isSmallScreen = !screens.md && (screens.xs || screens.sm);
+  const actionsBlockJustify = isSmallScreen
+    ? "center"
+    : isTeacher
+    ? "space-between"
+    : "flex-end";
 
-  const courses = useLoaderData();
   const [filteredCourses, setFilteredCourses] = useState<GetCourse[]>(courses);
-
-  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-  const availableActions: CourseActionConfig[] =
-    userAvailableCourseActions[role];
 
   const columns: TableColumnsType<GetCourse> = [
     {
@@ -100,18 +107,16 @@ const Courses: React.FC = () => {
         level={2}
         style={{ color: themeToken.colorPrimaryActive }}
       >
-        Find Your Next Course
+        {mode === "my" ? "My Courses" : "Find Your Next Course"}
       </Typography.Title>
       <Flex
-        justify={isSmallScreen ? "center" : "space-between"}
+        justify={actionsBlockJustify}
         align="center"
         gap={15}
         wrap
-        style={{
-          width: "100%",
-        }}
+        style={{ width: "100%" }}
       >
-        {role === UserRoles.TEACHER && (
+        {isTeacher && (
           <Link to={PATHS.NEW_COURSE.link} relative="route">
             <Button type="primary">Add New</Button>
           </Link>
@@ -134,16 +139,4 @@ const Courses: React.FC = () => {
   );
 };
 
-export default Courses;
-
-export async function loader() {
-  const response = await coursesApi.getAll();
-
-  if (response.status === 200) {
-    return response.data.map((el: GetCourse) => {
-      return { ...el, key: el.id };
-    });
-  }
-
-  return [];
-}
+export default CoursesList;

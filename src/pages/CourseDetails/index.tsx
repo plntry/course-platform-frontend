@@ -1,4 +1,9 @@
-import { useLoaderData, Params, useNavigate } from "react-router";
+import {
+  useLoaderData,
+  Params,
+  useNavigate,
+  useRouteLoaderData,
+} from "react-router";
 import { Typography, Divider, Row, Col, Flex, theme, Tag, Rate } from "antd";
 import { userAvailableCourseActionsDetailsPage } from "../../constants/availableCourseActions";
 import { GetCourse, CourseActionConfig } from "../../models/Course";
@@ -7,7 +12,7 @@ import { coursesApi } from "../../api/courses";
 import { PATHS } from "../../routes/paths";
 import { useAuthStore } from "../../store/useAuthStore";
 import { GUEST_ROLE } from "../../models/User";
-import { getCategoryColor } from "../../utils/colorsUtils";
+import { getCategoryColor } from "../../utils/courseUtils";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -21,7 +26,7 @@ const CourseDetails: React.FC = () => {
   const availableActions: CourseActionConfig[] =
     userAvailableCourseActionsDetailsPage[role];
 
-  const course: GetCourse = useLoaderData();
+  const course: GetCourse | undefined = useRouteLoaderData("courseDetails");
   if (!course) {
     navigate(PATHS.HOME.link);
   }
