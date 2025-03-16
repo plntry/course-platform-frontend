@@ -11,7 +11,7 @@ import {
   UploadFile,
 } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import { CreateCourse, GetCourse } from "../../models/Course";
+import { PostCourse, GetCourse } from "../../models/Course";
 import { useState } from "react";
 import { coursesApi } from "../../api/courses";
 import { handleAxiosRequest } from "../../utils/axiosUtils";
@@ -29,8 +29,6 @@ const CourseForm: React.FC<{ course?: GetCourse | undefined }> = ({
     name: "file",
     multiple: true,
     beforeUpload: (file) => {
-      // console.log({ file });
-
       setFileList((prev) => [...prev, file]);
       return false; // Prevent automatic upload
     },
@@ -39,23 +37,23 @@ const CourseForm: React.FC<{ course?: GetCourse | undefined }> = ({
     },
   };
 
-  const onFinish = async (formData: CreateCourse) => {
+  const onFinish = async (formData: PostCourse) => {
     const courseData = {
       ...formData,
       files: fileList.map((file) => file.name),
     };
-    console.log("Complete form data:", courseData);
 
-    let requestFunction = coursesApi.create(courseData);
+    let requestFunction = async () => await coursesApi.create(courseData);
     let userMessageSuccess = "The course was created!";
 
     if (course) {
-      requestFunction = coursesApi.update(course.id + "", courseData);
+      requestFunction = async () =>
+        await coursesApi.update(course.id + "", courseData);
       userMessageSuccess = "The course was updated!";
     }
 
     await handleAxiosRequest(
-      () => requestFunction,
+      () => requestFunction(),
       notification,
       userMessageSuccess
     );
@@ -75,8 +73,8 @@ const CourseForm: React.FC<{ course?: GetCourse | undefined }> = ({
           description: course?.description || "",
           category: course?.category || "",
           rating: course?.rating || 0,
-          lessons_count: course?.lessons_count || "",
-          lessons_duration: course?.lessons_duration || "",
+          lessons_count: course?.lessons_count || 0,
+          lessons_duration: course?.lessons_duration || 0,
         }}
         onFinish={onFinish}
         style={{

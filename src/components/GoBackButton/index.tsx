@@ -1,6 +1,6 @@
 import { Button, Flex } from "antd";
 import { RollbackOutlined } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 interface GoBackButtonProps {
   justifyContent?:

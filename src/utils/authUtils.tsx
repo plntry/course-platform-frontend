@@ -49,6 +49,9 @@ export const handleAuthResponse = async (
   notification: NotificationInstance,
   navigate: any
 ) => {
+  const { loginAttempts, incrementLoginAttempts, resetLoginAttempts } =
+    useAuthStore.getState();
+
   let notificationConfig: ArgsProps = {
     message: `${capitalizeFirstLetter(mode)} Attempt Unsuccessful`,
     description: `Unable to ${mode}`,
@@ -58,6 +61,8 @@ export const handleAuthResponse = async (
 
   if (!axios.isAxiosError(response)) {
     if (mode === "login") {
+      resetLoginAttempts();
+
       const { data } = await authApi.getToken();
       useAuthStore.getState().setUser(data);
 
@@ -75,6 +80,10 @@ export const handleAuthResponse = async (
 
     navigate(PATHS.AUTH.link);
   } else {
+    if (mode === "login") {
+      incrementLoginAttempts();
+    }
+
     handleAxiosError(response, notification, notificationConfig);
   }
 };

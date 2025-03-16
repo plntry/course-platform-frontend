@@ -9,6 +9,14 @@ export const PATHS = {
     link: "/auth",
     roles: [GUEST_ROLE],
   },
+  REQUEST_PASSWORD_RESET: {
+    link: "/request-password-reset",
+    roles: [GUEST_ROLE],
+  },
+  RESET_PASSWORD: {
+    link: "/reset-password/:token",
+    roles: [GUEST_ROLE],
+  },
   COURSES: {
     link: "/courses",
     roles: [...Object.values(UserRoles), GUEST_ROLE],
@@ -30,11 +38,11 @@ export const PATHS = {
     roles: [UserRoles.TEACHER],
   },
   NEW_COURSE: {
-    link: "new",
+    link: "/courses/my/new",
     roles: [UserRoles.TEACHER],
   },
   STUDENTS: {
-    link: "students",
+    link: "/students",
     roles: [UserRoles.TEACHER],
   },
   LOGOUT: {

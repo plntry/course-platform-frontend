@@ -1,20 +1,23 @@
 import { useEffect } from "react";
 import { Modal, notification } from "antd";
-import { GetCourse } from "../../models/Course";
 import { AxiosResponse } from "axios";
+import { GetCourse } from "../../models/Course";
+import { Student } from "../../models/Student";
 
 const { confirm } = Modal;
 
 interface DeleteModalProps {
-  data: GetCourse;
+  data: GetCourse | Student;
   deleteRequest: () => Promise<AxiosResponse<any>>;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
   data,
   deleteRequest,
   onClose,
+  onSuccess,
 }) => {
   useEffect(() => {
     const modal = confirm({
@@ -30,6 +33,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
             notification.success({
               message: "Deleted successfully",
             });
+            if (onSuccess) {
+              onSuccess();
+            }
           } else {
             notification.error({
               message: "Failed to delete",
@@ -51,7 +57,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
     return () => {
       modal.destroy();
     };
-  }, [data, onClose]);
+  }, [data, onClose, deleteRequest, onSuccess]);
 
   return null;
 };

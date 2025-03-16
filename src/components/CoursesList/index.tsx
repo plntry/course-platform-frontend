@@ -11,38 +11,43 @@ import {
   Button,
   Grid,
 } from "antd";
-import type { TableColumnsType, GetProps } from "antd";
-import { GetCourse, CourseActionConfig } from "../../models/Course";
-import { userAvailableCourseActionsCoursesPage } from "../../constants/availableCourseActions";
+import type { TableColumnsType } from "antd";
+import { GetCourse, CourseActionConfig, CoursePage } from "../../models/Course";
+import { userAvailableCourseActionsByPage } from "../../constants/availableCourseActions";
 import CourseActionsComp from "../CourseActions";
 import { getCategoryColor } from "../../utils/courseUtils";
 import { useAuthStore } from "../../store/useAuthStore";
 import { GUEST_ROLE, UserRoles } from "../../models/User";
 import { PATHS } from "../../routes/paths";
+import SearchInput from "../SearchInput";
 
 const { Search } = Input;
 const { useBreakpoint } = Grid;
-type SearchProps = GetProps<typeof Search>;
 
 const CoursesList: React.FC<{
   courses: GetCourse[];
-  mode?: string | null;
-}> = ({ courses, mode = "all" }) => {
+  mode?: CoursePage;
+}> = ({ courses, mode = CoursePage.AllCourses }) => {
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   const isTeacher = role === UserRoles.TEACHER;
   const availableActions: CourseActionConfig[] =
-    userAvailableCourseActionsCoursesPage[role];
+    userAvailableCourseActionsByPage[mode][role];
 
   const { token: themeToken } = theme.useToken();
   const screens = useBreakpoint();
   const isSmallScreen = !screens.md && (screens.xs || screens.sm);
   const actionsBlockJustify = isSmallScreen
     ? "center"
-    : isTeacher
+    : isTeacher && mode === "myCourses"
     ? "space-between"
-    : "flex-end";
+    : "center";
 
-  const [filteredCourses, setFilteredCourses] = useState<GetCourse[]>(courses);
+  const [searchText, setSearchText] = useState("");
+  const filteredCourses = courses.filter(
+    (item) =>
+      item.title.toLowerCase().includes(searchText.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   const columns: TableColumnsType<GetCourse> = [
     {
@@ -89,17 +94,14 @@ const CoursesList: React.FC<{
       title: "",
       dataIndex: "actions",
       render: (_, record: GetCourse) => (
-        <CourseActionsComp course={record} actions={availableActions} />
+        <CourseActionsComp
+          course={record}
+          actions={availableActions}
+          mode={mode}
+        />
       ),
     },
   ];
-
-  const onSearch: SearchProps["onSearch"] = (value) => {
-    const filtered = courses.filter((course: GetCourse) =>
-      course.title.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredCourses(filtered);
-  };
 
   return (
     <Flex vertical align="center" gap={20}>
@@ -107,7 +109,7 @@ const CoursesList: React.FC<{
         level={2}
         style={{ color: themeToken.colorPrimaryActive }}
       >
-        {mode === "my" ? "My Courses" : "Find Your Next Course"}
+        {mode === "myCourses" ? "My Courses" : "Find Your Next Course"}
       </Typography.Title>
       <Flex
         justify={actionsBlockJustify}
@@ -116,17 +118,12 @@ const CoursesList: React.FC<{
         wrap
         style={{ width: "100%" }}
       >
-        {isTeacher && (
-          <Link to={PATHS.NEW_COURSE.link} relative="route">
+        {isTeacher && mode === "myCourses" && (
+          <Link to={PATHS.NEW_COURSE.link}>
             <Button type="primary">Add New</Button>
           </Link>
         )}
-        <Search
-          placeholder="Input search text..."
-          allowClear
-          onSearch={onSearch}
-          style={{ alignSelf: "flex-end", maxWidth: "500px" }}
-        />
+        <SearchInput onChange={(e) => setSearchText(e.target.value)} />
       </Flex>
       <Table<GetCourse>
         columns={columns}

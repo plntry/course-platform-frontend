@@ -1,40 +1,35 @@
-import React from "react";
+import React, { JSX } from "react";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Flex } from "antd";
 import AuthForm from "../AuthForm";
+import { formInputs } from "../../constants/formInputs";
 
 const Login: React.FC = () => {
+  const inputKeys = ["email", "loginPassword"];
+  const inputs = formInputs.filter(
+    (el: JSX.Element) =>
+      typeof el.key === "string" && inputKeys.includes(el.key)
+  );
+
   return (
     <AuthForm mode="login" name="login">
-      <Form.Item
-        name="email"
-        rules={[
-          {
-            type: "email",
-            message: "The input is not valid Email!",
-          },
-          { required: true, message: "Please input your Email!" },
-        ]}
-      >
-        <Input prefix={<UserOutlined />} placeholder="Email" />
-      </Form.Item>
-      <Form.Item
-        name="password"
-        rules={[{ required: true, message: "Please input your Password!" }]}
-      >
-        <Input.Password
-          prefix={<LockOutlined />}
-          type="password"
-          placeholder="Password"
-        />
-      </Form.Item>
-      <Form.Item>
-        <Flex vertical align="center" gap={20}>
-          <Button block type="primary" htmlType="submit">
-            Log in
-          </Button>
-        </Flex>
-      </Form.Item>
+      {(disableSubmit) => (
+        <>
+          {inputs.map((el) => el)}
+          <Form.Item>
+            <Flex vertical align="center" gap={20}>
+              <Button
+                block
+                type="primary"
+                htmlType="submit"
+                disabled={disableSubmit}
+              >
+                Log in
+              </Button>
+            </Flex>
+          </Form.Item>
+        </>
+      )}
     </AuthForm>
   );
 };

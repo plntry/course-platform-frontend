@@ -5,8 +5,9 @@ import { PATHS } from "../../routes/paths";
 
 const CoursesLayout: React.FC = () => {
   const location = useLocation();
-  const pathname = location.pathname.substring(1);
-  const isCoursesPage = pathname === PATHS.COURSES.link;
+  const isCoursesPage =
+    location.pathname === PATHS.COURSES.link ||
+    location.pathname === PATHS.MY_COURSES.link;
 
   return (
     <Flex vertical gap={20} style={{ height: "100%" }}>

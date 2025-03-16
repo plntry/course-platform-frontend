@@ -1,6 +1,13 @@
-import { CourseActions, UserAvailableCourseActions } from "../models/Course";
+import { studentApi } from "../api/students";
+import {
+  CourseActions,
+  CoursePage,
+  UserAvailableCourseActions,
+  UserAvailableCourseActionsByPage,
+} from "../models/Course";
 import { GUEST_ROLE, UserRoles } from "../models/User";
 import { PATHS } from "../routes/paths";
+import { handleAxiosRequest } from "../utils/axiosUtils";
 import { getUserAvailableCourseActionsByPage } from "../utils/courseUtils";
 
 export const courseActions: CourseActions = {
@@ -12,21 +19,31 @@ export const courseActions: CourseActions = {
       propName: "id",
     },
     visible: {
-      coursesPage: true,
-      detailsPage: false,
+      [CoursePage.AllCourses]: true,
+      [CoursePage.MyCourses]: true,
+      [CoursePage.CourseDetails]: false,
     },
   },
   enroll: {
     title: "Enroll",
-    link: PATHS.HOME.link, // TODO: Update with needed link / action
+    link: "",
     visible: {
-      coursesPage: true,
-      detailsPage: true,
+      [CoursePage.AllCourses]: true,
+      [CoursePage.MyCourses]: false,
+      [CoursePage.CourseDetails]: true,
     },
     buttonProps: {
       type: "primary",
       disabled: true,
     },
+    onClick: async (courseId, notification) => {
+      return await handleAxiosRequest(
+        () => studentApi.enrollToCourse(courseId),
+        notification,
+        'Congrats, you\'ve enrolled the course! You can see it in "My Courses" section.'
+      );
+    },
+    disabledIfAlreadyEnrolled: true,
   },
   edit: {
     title: "Edit",
@@ -36,8 +53,9 @@ export const courseActions: CourseActions = {
       propName: "id",
     },
     visible: {
-      coursesPage: true,
-      detailsPage: true,
+      [CoursePage.AllCourses]: false,
+      [CoursePage.MyCourses]: true,
+      [CoursePage.CourseDetails]: true,
     },
     buttonProps: {
       type: "dashed",
@@ -45,14 +63,15 @@ export const courseActions: CourseActions = {
   },
   delete: {
     title: "Delete",
-    link: `${PATHS.COURSE.link}/${PATHS.DELETE_COURSE.link}`,
+    link: "",
     dynamicParam: {
       stringToReplace: ":courseId",
       propName: "id",
     },
     visible: {
-      coursesPage: true,
-      detailsPage: true,
+      [CoursePage.AllCourses]: false,
+      [CoursePage.MyCourses]: true,
+      [CoursePage.CourseDetails]: true,
     },
     buttonProps: {
       type: "dashed",
@@ -68,10 +87,14 @@ export const userAvailableCourseActions: UserAvailableCourseActions = {
     courseActions.more,
   ],
   [GUEST_ROLE]: [courseActions.more],
+  [UserRoles.ADMIN]: [courseActions.more],
 };
 
 // each page should include only actions which should be visible on that page
-export const userAvailableCourseActionsCoursesPage: UserAvailableCourseActions =
-  getUserAvailableCourseActionsByPage("coursesPage");
-export const userAvailableCourseActionsDetailsPage: UserAvailableCourseActions =
-  getUserAvailableCourseActionsByPage("detailsPage");
+export const userAvailableCourseActionsByPage: UserAvailableCourseActionsByPage =
+  Object.fromEntries(
+    Object.values(CoursePage).map((page) => [
+      page,
+      getUserAvailableCourseActionsByPage(page as CoursePage),
+    ])
+  ) as UserAvailableCourseActionsByPage;

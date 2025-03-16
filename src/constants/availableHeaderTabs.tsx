@@ -25,6 +25,10 @@ export const headerTabs = [
     label: "My Courses",
   },
   {
+    key: PATHS.STUDENTS.link,
+    label: "Students",
+  },
+  {
     key: PATHS.LOGOUT.link,
     label: "Log out",
     icon: <LogoutOutlined />,

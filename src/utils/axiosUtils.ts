@@ -3,6 +3,7 @@ import { ArgsProps } from "antd/es/notification";
 import { NotificationInstance } from "antd/es/notification/interface";
 import { APIError } from "../models/APIResponse";
 import { useAuthStore } from "../store/useAuthStore";
+import { resolve } from "path";
 
 const defaultNotificationConfig: ArgsProps = {
   message: "Attempt Unsuccessful",
@@ -24,46 +25,53 @@ export const handleAxiosRequest = async <T>(
   notification: NotificationInstance,
   userMessageSuccess: string,
   customConfig?: Partial<ArgsProps>
-) => {
+): Promise<boolean> => {
   const notificationConfig: ArgsProps = {
     ...defaultNotificationConfig,
     ...customConfig,
   };
 
   try {
-    const response: AxiosResponse = await requestFunction();
-    // console.log({ response });
+    const response: AxiosResponse<T> = await requestFunction();
 
     if (response?.status && response.status >= 200 && response.status < 300) {
       notification.success({
         ...notificationConfig,
-        message: `Attempt Successful`,
+        message: "Attempt Successful",
         description: userMessageSuccess,
       });
+      return true;
     }
+    return false;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      if (error.status === 401) {
+      if (error.response?.status === 401) {
         const { checkAuth } = useAuthStore.getState();
-        // await checkAuth();
+        await checkAuth();
 
-        // const { user: updatedUser } = useAuthStore.getState();
-        // console.log({ updatedUser });
-
-        await handleAxiosRequest(
-          requestFunction,
-          notification,
-          userMessageSuccess,
-          customConfig
-        );
+        const { user } = useAuthStore.getState();
+        if (user?.id) {
+          return await handleAxiosRequest(
+            requestFunction,
+            notification,
+            userMessageSuccess,
+            customConfig
+          );
+        } else {
+          handleAxiosError(error, notification, notificationConfig);
+          return false;
+        }
       } else {
         handleAxiosError(error, notification, notificationConfig);
+        return false;
       }
     } else {
       console.error("Unexpected error:", error);
+      return false;
     }
   }
 };
+
 
 export const handleAxiosError = (
   error: AxiosError<APIError>,

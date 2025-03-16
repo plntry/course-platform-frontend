@@ -23,7 +23,6 @@ const DeleteCoursePage: React.FC = () => {
     });
   }, [courseId, navigate, submit]);
 
-  // This component doesn't render anything by itself
   return null;
 };
 
@@ -32,11 +31,6 @@ export default DeleteCoursePage;
 export async function action({ params }: { params: { courseId: string } }) {
   try {
     const response = await coursesApi.delete(params.courseId);
-    console.log({ response });
-
-    // if (response.status === 200) {
-    //   return redirect("/courses");
-    // }
 
     return { error: "Failed to delete course" };
   } catch (error) {

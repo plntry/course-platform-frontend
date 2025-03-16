@@ -5,7 +5,7 @@ import { GetCourse } from "../../models/Course";
 const EditCoursePage: React.FC = () => {
   const course: GetCourse | undefined = useRouteLoaderData("courseDetails");
 
-  return <CourseForm course={course} />;
+return <CourseForm course={course} />;
 };
 
 export default EditCoursePage;

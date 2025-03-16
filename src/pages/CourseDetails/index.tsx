@@ -5,8 +5,8 @@ import {
   useRouteLoaderData,
 } from "react-router";
 import { Typography, Divider, Row, Col, Flex, theme, Tag, Rate } from "antd";
-import { userAvailableCourseActionsDetailsPage } from "../../constants/availableCourseActions";
-import { GetCourse, CourseActionConfig } from "../../models/Course";
+import { userAvailableCourseActionsByPage } from "../../constants/availableCourseActions";
+import { GetCourse, CourseActionConfig, CoursePage } from "../../models/Course";
 import CourseActionsComp from "../../components/CourseActions";
 import { coursesApi } from "../../api/courses";
 import { PATHS } from "../../routes/paths";
@@ -24,7 +24,7 @@ const CourseDetails: React.FC = () => {
   } = theme.useToken();
 
   const availableActions: CourseActionConfig[] =
-    userAvailableCourseActionsDetailsPage[role];
+    userAvailableCourseActionsByPage[CoursePage.CourseDetails][role];
 
   const course: GetCourse | undefined = useRouteLoaderData("courseDetails");
   if (!course) {
@@ -120,9 +120,10 @@ const CourseDetails: React.FC = () => {
 export default CourseDetails;
 
 export async function loader({ params }: { params: Params }) {
-  const response = await coursesApi.getById(params.courseId || "");
-  // console.log("course res", response);
+  const { checkAuth } = useAuthStore.getState();
+  await checkAuth();
 
+  const response = await coursesApi.getById(params.courseId || "");
   if (response.status === 200) {
     return response.data;
   }

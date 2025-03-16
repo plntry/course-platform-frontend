@@ -18,6 +18,11 @@ import MyCourses, { loader as myCoursesLoader } from "../pages/MyCourses";
 import DeleteCoursePage, {
   action as deleteCourseAction,
 } from "../pages/DeleteCourse";
+import StudentsPage, {
+  loader as studentsPageLoader,
+} from "../pages/StudentsPage";
+import ResetPasswordRequest from "../components/ResetPasswordRequest";
+import ResetPassword from "../components/ResetPassword";
 
 export const routes = [
   {
@@ -97,6 +102,15 @@ export const routes = [
         ],
       },
       {
+        path: PATHS.STUDENTS.link,
+        element: (
+          <ProtectedRoute allowedRoles={[...PATHS.STUDENTS.roles]}>
+            <StudentsPage />
+          </ProtectedRoute>
+        ),
+        loader: studentsPageLoader,
+      },
+      {
         path: PATHS.LOGOUT.link,
         element: <ProtectedRoute allowedRoles={[...PATHS.LOGOUT.roles]} />,
         children: [{ index: true }],
@@ -112,5 +126,21 @@ export const routes = [
     path: PATHS.AUTH.link,
     element: <ProtectedRoute allowedRoles={[...PATHS.AUTH.roles]} />,
     children: [{ index: true, element: <AuthPage /> }],
+  },
+  {
+    path: PATHS.REQUEST_PASSWORD_RESET.link,
+    element: (
+      <ProtectedRoute allowedRoles={[...PATHS.REQUEST_PASSWORD_RESET.roles]}>
+        <ResetPasswordRequest />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: PATHS.RESET_PASSWORD.link,
+    element: (
+      <ProtectedRoute allowedRoles={[...PATHS.RESET_PASSWORD.roles]}>
+        <ResetPassword />
+      </ProtectedRoute>
+    ),
   },
 ];
