@@ -25,13 +25,21 @@ const StudentsPage: React.FC = () => {
           tabPosition="top"
           className={classes.tabs}
           type="card"
-          items={teacherCourses.map((course: GetCourse) => {
-            return {
-              label: course.title,
-              key: course.id,
-              children: <StudentsList courseId={course.id + ""} />,
-            };
-          })}
+          items={
+            teacherCourses.length ? (
+              teacherCourses.map((course: GetCourse) => {
+                return {
+                  label: course.title,
+                  key: course.id,
+                  children: <StudentsList courseId={course.id + ""} />,
+                };
+              })
+            ) : (
+              <Flex justify="center" style={{ width: "100%" }}>
+                There're no courses yet
+              </Flex>
+            )
+          }
         />
       </Flex>
     </Flex>

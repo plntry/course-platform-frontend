@@ -1,29 +1,42 @@
 import React from "react";
-import { Form, Input, Typography, notification } from "antd";
+import { Form, Input, notification } from "antd";
 import { useNavigate, useParams } from "react-router";
 import { authApi } from "../../api/auth";
 import ResetPasswordForm from "../ResetPasswordForm";
 import { PATHS } from "../../routes/paths";
+import axios from "axios";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
   const { token } = useParams<{ token: string }>();
 
-  const onFinish = async (values: { password: string; confirm: string }) => {
+  const onFinish = async (values: {
+    new_password: string;
+    confirm: string;
+  }) => {
     try {
-      await authApi.resetPassword(token!, values.password);
+      await authApi.resetPassword(token!, values.new_password);
       notification.success({
         message: "Password Reset Successful",
         description:
           "Your password has been reset successfully. Please login with your new password.",
       });
 
+      useAuthStore.getState().resetLoginAttempts();
+
       navigate(PATHS.AUTH.link);
     } catch (error) {
+      let errorDescription =
+        "There was an error resetting your password. Please try again.";
+
+      if (axios.isAxiosError(error)) {
+        errorDescription = error.response?.data?.detail;
+      }
+
       notification.error({
         message: "Password Reset Failed",
-        description:
-          "There was an error resetting your password. Please try again.",
+        description: errorDescription,
       });
     }
   };
