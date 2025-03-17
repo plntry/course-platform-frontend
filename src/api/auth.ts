@@ -20,10 +20,6 @@ const requestUrls = {
   refreshToken: "/refresh",
 };
 
-export const shouldIncludeAuth = {
-  register: ["teacher", "admin"],
-};
-
 const getAuthUrl = (path: string) => `${AUTH_BASE_URL}${path}`;
 
 export const authApi = {
