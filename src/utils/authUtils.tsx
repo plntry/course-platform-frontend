@@ -1,13 +1,18 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { LoaderFunction, redirect } from "react-router";
-import { PATHS } from "../routes/paths";
-import { UserRegistration, UserLogin, UserRoles } from "../models/User";
+import { PATHS, ROLE_PATHS } from "../routes/paths";
+import {
+  UserRegistration,
+  UserLogin,
+  UserRoles,
+  GUEST_ROLE,
+} from "../models/User";
 import {
   RegisterFormData,
   LoginFormData,
-  AuthError,
   AuthRequestType,
 } from "../models/Auth";
+import { APIError } from "../models/APIResponse";
 import { useAuthStore } from "../store/useAuthStore";
 import { ArgsProps } from "antd/es/notification";
 import { handleAxiosError } from "./axiosUtils";
@@ -22,7 +27,7 @@ export const getRequestBody = {
       first_name: formData.first_name || "",
       last_name: formData.last_name || "",
       password: formData.password,
-      role: UserRoles.Student,
+      role: UserRoles.STUDENT,
     };
 
     return userBody;
@@ -38,12 +43,15 @@ export const getRequestBody = {
 };
 
 export const handleAuthResponse = async (
-  response: AxiosResponse | AxiosError<AuthError>,
+  response: AxiosResponse | AxiosError<APIError>,
   mode: AuthRequestType,
   userRoleToCreate: UserRoles,
   notification: NotificationInstance,
   navigate: any
 ) => {
+  const { loginAttempts, incrementLoginAttempts, resetLoginAttempts } =
+    useAuthStore.getState();
+
   let notificationConfig: ArgsProps = {
     message: `${capitalizeFirstLetter(mode)} Attempt Unsuccessful`,
     description: `Unable to ${mode}`,
@@ -53,14 +61,16 @@ export const handleAuthResponse = async (
 
   if (!axios.isAxiosError(response)) {
     if (mode === "login") {
+      resetLoginAttempts();
+
       const { data } = await authApi.getToken();
       useAuthStore.getState().setUser(data);
 
-      navigate(PATHS.HOME);
+      navigate(PATHS.HOME.link);
       return;
     }
 
-    if (userRoleToCreate !== UserRoles.Student) {
+    if (userRoleToCreate !== UserRoles.STUDENT) {
       notification.success({
         ...notificationConfig,
         message: `${capitalizeFirstLetter(mode)} Attempt Successful`,
@@ -68,22 +78,35 @@ export const handleAuthResponse = async (
       });
     }
 
-    navigate(PATHS.AUTH);
+    navigate(PATHS.AUTH.link);
   } else {
+    if (mode === "login") {
+      incrementLoginAttempts();
+    }
+
     handleAxiosError(response, notification, notificationConfig);
   }
 };
 
-export const rootLoader: LoaderFunction = async () => {
+export const rootLoader: LoaderFunction = async ({ request }) => {
   const { isAuthenticated, checkAuth } = useAuthStore.getState();
+  const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
+  const pathname = new URL(request.url).pathname;
+  const currentPath =
+    pathname.startsWith("/") && pathname !== PATHS.HOME.link
+      ? pathname.substring(1)
+      : pathname;
 
   if (!isAuthenticated) {
     await checkAuth();
   }
 
-  if (!useAuthStore.getState().isAuthenticated) {
-    return redirect(PATHS.AUTH);
+  const { isAuthenticated: updatedIsAuthenticated } = useAuthStore.getState();
+
+  if (!updatedIsAuthenticated && !guestAccessiblePaths.has(currentPath)) {
+    return redirect(PATHS.AUTH.link);
   }
 
   return null;
 };
+

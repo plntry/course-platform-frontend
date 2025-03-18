@@ -21,7 +21,7 @@
   justify-content: flex-start;
 }
 
-.menu .menuLogoutItem {
+.menu .menuLastItem {
   margin-left: auto;
 }
 
@@ -30,7 +30,7 @@
     justify-content: space-around;
   }
 
-  .menu .menuLogoutItem {
+  .menu .menuLastItem {
     margin-left: 0;
   }
 }

@@ -16,12 +16,14 @@ export interface LoginFormData {
   password: string;
 }
 
-export interface AuthFormProps extends FormProps {
+export interface AuthFormProps extends Omit<FormProps, "children"> {
   mode: AuthRequestType;
   userRoleToCreate?: UserRoles;
-  children: React.ReactNode;
+  children: (disableSubmit: boolean) => React.ReactNode;
 }
 
-export interface AuthError {
-  detail?: string | { msg: string }[];
+export interface ResetPasswordFormProps<T = Record<string, any>>
+  extends FormProps {
+  onFinish: (values: any) => void;
+  children: React.ReactNode;
 }
