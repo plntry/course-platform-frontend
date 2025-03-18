@@ -42,7 +42,10 @@ export const formInputs: JSX.Element[] = [
     key="first_name"
     name="first_name"
     label="First Name"
-    rules={[{ required: true, message: "Please input the first name!" }]}
+    rules={[
+      { required: true, message: "Please input the first name!" },
+      { pattern: /^\S+$/, message: "Spaces are not allowed" },
+    ]}
   >
     <Input />
   </Form.Item>,
@@ -51,7 +54,10 @@ export const formInputs: JSX.Element[] = [
     key="last_name"
     name="last_name"
     label="Last Name"
-    rules={[{ required: true, message: "Please input the last name!" }]}
+    rules={[
+      { required: true, message: "Please input the last name!" },
+      { pattern: /^\S+$/, message: "Spaces are not allowed" },
+    ]}
   >
     <Input />
   </Form.Item>,
@@ -63,6 +69,7 @@ export const formInputs: JSX.Element[] = [
     validateFirst
     rules={[
       { required: true, message: "Please input your password!" },
+      { pattern: /^\S+$/, message: "Spaces are not allowed" },
       { min: 8, message: "Password must have at least 8 characters!" },
       {
         pattern: /[A-Z]/,
