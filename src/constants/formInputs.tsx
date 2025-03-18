@@ -93,6 +93,7 @@ export const formInputs: JSX.Element[] = [
     hasFeedback
     rules={[
       { required: true, message: "Please confirm your password!" },
+      { pattern: /^\S+$/, message: "Spaces are not allowed" },
       ({ getFieldValue }) => ({
         validator(_, value) {
           if (!value || getFieldValue("password") === value) {
