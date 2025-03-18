@@ -91,6 +91,7 @@ export const formInputs: JSX.Element[] = [
     label="Confirm Password"
     dependencies={["password"]}
     hasFeedback
+    validateFirst
     rules={[
       { required: true, message: "Please confirm your password!" },
       { pattern: /^\S+$/, message: "Spaces are not allowed" },
