@@ -3,22 +3,10 @@ import { RegisterFormData, LoginFormData } from "../models/Auth";
 import { getRequestBody } from "../utils/authUtils";
 import { getAxiosError } from "../utils/axiosUtils";
 import api from ".";
+import { urls } from "./urls";
 
 const AUTH_BASE_URL = "/auth";
-
-const requestUrls = {
-  register: {
-    student: "",
-    teacher: "/register/teacher",
-    admin: "/create/admin",
-  },
-  login: "/token",
-  logout: "/logout",
-  requestPasswordReset: "/reset-password",
-  resetPassword: "/reset-password",
-  getToken: "/me",
-  refreshToken: "/refresh",
-};
+const requestUrls = urls.auth;
 
 const getAuthUrl = (path: string) => `${AUTH_BASE_URL}${path}`;
 

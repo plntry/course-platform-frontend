@@ -43,7 +43,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
   const [remainingTime, setRemainingTime] = useState<number>(0);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | undefined;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
 
     if (failedLogin) {
       let disabledUntilStr = localStorage.getItem("disabledUntil");
