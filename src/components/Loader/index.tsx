@@ -6,10 +6,8 @@ const containerStyle: React.CSSProperties = {
 };
 
 const Loader: React.FC = () => (
-  <Flex vertical justify="center" style={containerStyle}>
-    <Spin tip="Loading..." size="large">
-      <div />
-    </Spin>
+  <Flex justify="center" align="center" style={containerStyle}>
+    <Spin size="large" />
   </Flex>
 );
 

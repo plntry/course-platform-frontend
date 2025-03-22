@@ -23,6 +23,9 @@ import StudentsPage, {
 } from "../pages/StudentsPage";
 import ResetPasswordRequest from "../components/ResetPasswordRequest";
 import ResetPassword from "../components/ResetPassword";
+import CourseSections, {
+  loader as courseSectionsLoader,
+} from "../pages/CourseSections";
 
 export const routes = [
   {
@@ -31,6 +34,7 @@ export const routes = [
     element: <RootLayout />,
     loader: rootLoader,
     HydrateFallback: Loader,
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
@@ -88,6 +92,17 @@ export const routes = [
                   </ProtectedRoute>
                 ),
                 action: deleteCourseAction,
+              },
+              {
+                path: PATHS.COURSE_SECTIONS.link,
+                element: (
+                  <ProtectedRoute
+                    allowedRoles={[...PATHS.COURSE_SECTIONS.roles]}
+                  >
+                    <CourseSections />
+                  </ProtectedRoute>
+                ),
+                loader: courseSectionsLoader,
               },
             ],
           },

@@ -1,11 +1,18 @@
-import { useLoaderData } from "react-router";
-import { GetCourse } from "../../models/Course";
-import { coursesApi } from "../../api/courses";
+import React from "react";
+import { useLoaderData, useNavigation } from "react-router";
 import CoursesList from "../../components/CoursesList";
+import Loader from "../../components/Loader";
 import { useAuthStore } from "../../store/useAuthStore";
+import { coursesApi } from "../../api/courses";
+import { GetCourse } from "../../models/Course";
 
 const AllCourses: React.FC = () => {
   const courses = useLoaderData();
+  const navigation = useNavigation();
+
+  if (navigation.state === "loading") {
+    return <Loader />;
+  }
 
   return <CoursesList courses={courses} />;
 };

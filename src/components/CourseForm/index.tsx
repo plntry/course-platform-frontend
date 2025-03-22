@@ -4,43 +4,39 @@ import {
   Form,
   Input,
   theme,
-  Typography,
   Upload,
-  UploadProps,
   notification as antdNotification,
-  UploadFile,
 } from "antd";
-import { InboxOutlined } from "@ant-design/icons";
 import { PostCourse, GetCourse } from "../../models/Course";
-import { useState } from "react";
 import { coursesApi } from "../../api/courses";
 import { handleAxiosRequest } from "../../utils/axiosUtils";
+import TitleComp from "../Title";
 
 const { Dragger } = Upload;
 
 const CourseForm: React.FC<{ course?: GetCourse | undefined }> = ({
   course,
 }) => {
-  const { token: themeToken } = theme.useToken();
   const [notification, contextHolder] = antdNotification.useNotification();
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  // const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-  const props: UploadProps = {
-    name: "file",
-    multiple: true,
-    beforeUpload: (file) => {
-      setFileList((prev) => [...prev, file]);
-      return false; // Prevent automatic upload
-    },
-    onRemove: (file) => {
-      setFileList((prev) => prev.filter((f) => f.uid !== file.uid));
-    },
-  };
+  // const props: UploadProps = {
+  //   name: "file",
+  //   multiple: true,
+  //   beforeUpload: (file) => {
+  //     setFileList((prev) => [...prev, file]);
+  //     return false; // Prevent automatic upload
+  //   },
+  //   onRemove: (file) => {
+  //     setFileList((prev) => prev.filter((f) => f.uid !== file.uid));
+  //   },
+  // };
 
   const onFinish = async (formData: PostCourse) => {
     const courseData = {
       ...formData,
-      files: fileList.map((file) => file.name),
+      // files: fileList.map((file) => file.name),
+      files: [], // TODO: remove when the API is updated
     };
 
     let requestFunction = async () => await coursesApi.create(courseData);
@@ -61,12 +57,7 @@ const CourseForm: React.FC<{ course?: GetCourse | undefined }> = ({
 
   return (
     <Flex vertical justify="center" align="center">
-      <Typography.Title
-        level={2}
-        style={{ color: themeToken.colorPrimaryActive }}
-      >
-        {course ? "Edit" : "New"} Course
-      </Typography.Title>
+      <TitleComp>{course ? "Edit" : "New"} Course</TitleComp>
       <Form
         initialValues={{
           title: course?.title || "",
@@ -125,7 +116,7 @@ const CourseForm: React.FC<{ course?: GetCourse | undefined }> = ({
           <Input placeholder="Lesson Duration" />
         </Form.Item>
 
-        <Form.Item>
+        {/* <Form.Item>
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined />
@@ -137,7 +128,7 @@ const CourseForm: React.FC<{ course?: GetCourse | undefined }> = ({
               Supports a single or a bulk upload
             </p>
           </Dragger>
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item>
           <Flex vertical align="center" gap={20}>

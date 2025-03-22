@@ -1,17 +1,6 @@
 import React from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Typography,
-  notification,
-  Flex,
-  theme,
-} from "antd";
-import { useNavigate } from "react-router";
-import { authApi } from "../../api/auth";
+import { Form, Button, Typography, Flex, theme } from "antd";
 import classes from "./ResetPasswordForm.module.css";
-import { PATHS } from "../../routes/paths";
 import { ResetPasswordFormProps } from "../../models/Auth";
 
 const { Title } = Typography;
