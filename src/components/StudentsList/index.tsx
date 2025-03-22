@@ -66,7 +66,7 @@ const StudentsList: React.FC<{ courseId: string }> = ({ courseId }) => {
       {loading ? (
         <Loader />
       ) : filteredStudents.length ? (
-        <Flex vertical gap={20} style={{ width: "100%" }}>
+        <Flex vertical align="center" gap={20} style={{ width: "100%" }}>
           <SearchInput onChange={(e) => setSearchText(e.target.value)} />
           <Row gutter={[16, 16]} style={{ width: "100%" }}>
             {filteredStudents.map((item) => (

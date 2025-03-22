@@ -1,15 +1,12 @@
-import { Flex, Typography, theme } from "antd";
+import { Flex, Typography } from "antd";
 import { Link } from "react-router";
 import { PATHS } from "../../routes/paths";
+import TitleComp from "../../components/Title";
 
 const Home: React.FC = () => {
-  const { token: themeToken } = theme.useToken();
-
   return (
     <Flex vertical justify="center" align="center">
-      <Typography.Title style={{ color: themeToken.colorPrimaryActive }}>
-        ProSkills Home Page
-      </Typography.Title>
+      <TitleComp>ProSkills Home Page</TitleComp>
       <Typography.Paragraph>
         Check out the new courses in{" "}
         {<Link to={PATHS.COURSES.link}>All Courses</Link>} section!

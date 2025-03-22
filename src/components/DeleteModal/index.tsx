@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 import { Modal, notification } from "antd";
 import { AxiosResponse } from "axios";
-import { GetCourse } from "../../models/Course";
+import { CourseAssignment, GetCourse } from "../../models/Course";
 import { Student } from "../../models/Student";
 
 const { confirm } = Modal;
 
 interface DeleteModalProps {
-  data: GetCourse | Student;
+  data: GetCourse | Student | CourseAssignment;
   deleteRequest: () => Promise<AxiosResponse<any>>;
   onClose: () => void;
   onSuccess?: () => void;

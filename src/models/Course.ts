@@ -30,6 +30,20 @@ export interface PostCourse {
   files?: string[];
 }
 
+export interface CourseSection {
+  id: number;
+  title: string;
+}
+
+export interface CourseAssignment {
+  id: number;
+  title: string;
+  description: string;
+  due_date: string;
+  teacher_comments?: string;
+  files?: string;
+}
+
 export enum CoursePage {
   AllCourses = "allCourses",
   MyCourses = "myCourses",

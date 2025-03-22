@@ -1,16 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import {
-  Table,
-  Input,
-  Flex,
-  Typography,
-  theme,
-  Tag,
-  Rate,
-  Button,
-  Grid,
-} from "antd";
+import { Table, Flex, theme, Tag, Rate, Button, Grid } from "antd";
 import type { TableColumnsType } from "antd";
 import { GetCourse, CourseActionConfig, CoursePage } from "../../models/Course";
 import { userAvailableCourseActionsByPage } from "../../constants/availableCourseActions";
@@ -20,8 +10,8 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { GUEST_ROLE, UserRoles } from "../../models/User";
 import { PATHS } from "../../routes/paths";
 import SearchInput from "../SearchInput";
+import TitleComp from "../Title";
 
-const { Search } = Input;
 const { useBreakpoint } = Grid;
 
 const CoursesList: React.FC<{
@@ -33,7 +23,6 @@ const CoursesList: React.FC<{
   const availableActions: CourseActionConfig[] =
     userAvailableCourseActionsByPage[mode][role];
 
-  const { token: themeToken } = theme.useToken();
   const screens = useBreakpoint();
   const isSmallScreen = !screens.md && (screens.xs || screens.sm);
   const actionsBlockJustify = isSmallScreen
@@ -105,12 +94,9 @@ const CoursesList: React.FC<{
 
   return (
     <Flex vertical align="center" gap={20}>
-      <Typography.Title
-        level={2}
-        style={{ color: themeToken.colorPrimaryActive }}
-      >
+      <TitleComp>
         {mode === "myCourses" ? "My Courses" : "Find Your Next Course"}
-      </Typography.Title>
+      </TitleComp>
       <Flex
         justify={actionsBlockJustify}
         align="center"

@@ -41,6 +41,10 @@ export const PATHS = {
     link: "/courses/my/new",
     roles: [UserRoles.TEACHER],
   },
+  COURSE_SECTIONS: {
+    link: "/courses/:courseId/sections",
+    roles: [UserRoles.TEACHER, UserRoles.STUDENT],
+  },
   STUDENTS: {
     link: "/students",
     roles: [UserRoles.TEACHER],
