@@ -2,7 +2,6 @@ import React from "react";
 import { useLoaderData, useNavigation } from "react-router";
 import CoursesList from "../../components/CoursesList";
 import Loader from "../../components/Loader";
-import { useAuthStore } from "../../store/useAuthStore";
 import { coursesApi } from "../../api/courses";
 import { GetCourse } from "../../models/Course";
 
@@ -20,9 +19,6 @@ const AllCourses: React.FC = () => {
 export default AllCourses;
 
 export async function loader() {
-  const { checkAuth } = useAuthStore.getState();
-  await checkAuth();
-
   const response = await coursesApi.getAll();
 
   if (response.status === 200) {
