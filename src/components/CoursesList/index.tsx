@@ -32,11 +32,19 @@ const CoursesList: React.FC<{
     : "center";
 
   const [searchText, setSearchText] = useState("");
-  const filteredCourses = courses.filter(
-    (item) =>
-      item.title.toLowerCase().includes(searchText.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const [deletedCourseIds, setDeletedCourseIds] = useState<number[]>([]);
+
+  const filteredCourses = courses
+    .filter((course) => !deletedCourseIds.includes(course.id))
+    .filter(
+      (item) =>
+        item.title.toLowerCase().includes(searchText.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+  const handleCourseDelete = (courseId: number) => {
+    setDeletedCourseIds((prev) => [...prev, courseId]);
+  };
 
   const columns: TableColumnsType<GetCourse> = [
     {
@@ -87,6 +95,7 @@ const CoursesList: React.FC<{
           course={record}
           actions={availableActions}
           mode={mode}
+          onDelete={() => handleCourseDelete(record.id)}
         />
       ),
     },

@@ -7,9 +7,15 @@ const CourseActionsComp: React.FC<{
   course: GetCourse;
   actions: CourseActionConfig[];
   mode?: string | null;
-}> = ({ course, actions = [], mode = "" }) => {
+  onDelete?: () => void;
+}> = ({ course, actions = [], mode = "", onDelete }) => {
   const [notification, contextHolder] = antdNotification.useNotification();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDelete = () => {
+    setShowDeleteModal(false);
+    onDelete?.();
+  };
 
   return (
     <>
@@ -31,6 +37,7 @@ const CourseActionsComp: React.FC<{
                 showDeleteModal={showDeleteModal}
                 setShowDeleteModal={setShowDeleteModal}
                 mode={mode}
+                onDelete={handleDelete}
               />
             }
           </Col>

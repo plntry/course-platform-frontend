@@ -13,6 +13,7 @@ interface ActionButtonProps {
   showDeleteModal: boolean;
   setShowDeleteModal: (value: boolean) => void;
   mode: string | null;
+  onDelete?: () => void;
 }
 
 const CourseActionRenderer: React.FC<ActionButtonProps> = ({
@@ -22,6 +23,7 @@ const CourseActionRenderer: React.FC<ActionButtonProps> = ({
   showDeleteModal,
   setShowDeleteModal,
   mode,
+  onDelete,
 }) => {
   const initialDisabled: boolean =
     (action?.disabledIfAlreadyEnrolled && course.is_enrolled) ||
@@ -52,6 +54,7 @@ const CourseActionRenderer: React.FC<ActionButtonProps> = ({
             data={course}
             deleteRequest={async () => coursesApi.delete(course.id + "")}
             onClose={() => setShowDeleteModal(false)}
+            onSuccess={onDelete}
           />
         )}
       </>
