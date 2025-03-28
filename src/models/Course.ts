@@ -33,6 +33,16 @@ export interface PostCourse {
 export interface CourseSection {
   id: number;
   title: string;
+  description: string;
+  order: number;
+  course_id: number;
+}
+
+export interface CreateCourseSection {
+  title: string;
+  description: string;
+  order: number;
+  course_id: number;
 }
 
 export interface CourseAssignment {
@@ -41,7 +51,9 @@ export interface CourseAssignment {
   description: string;
   due_date: string;
   teacher_comments?: string;
-  files?: string;
+  order: number;
+  course_id: number;
+  section_id: number;
 }
 
 export enum CoursePage {
