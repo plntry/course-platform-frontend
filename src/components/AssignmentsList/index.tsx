@@ -8,8 +8,8 @@ import AssignmentModal from "../AssignmentModal";
 import Loader from "../Loader";
 
 const AssignmentsList: React.FC<{ sectionId: number }> = ({ sectionId }) => {
-  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-  // const role = UserRoles.STUDENT;
+  // const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
+  const role = UserRoles.STUDENT;
   const { assignments, loading, fetchAssignments, showAddModal } =
     useAssignmentsStore();
 

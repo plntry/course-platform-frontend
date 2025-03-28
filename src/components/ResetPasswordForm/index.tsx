@@ -2,6 +2,7 @@ import React from "react";
 import { Form, Button, Typography, Flex, theme } from "antd";
 import classes from "./ResetPasswordForm.module.css";
 import { ResetPasswordFormProps } from "../../models/Auth";
+import GoBackButton from "../GoBackButton";
 
 const { Title } = Typography;
 
@@ -32,6 +33,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             </Button>
           </Form.Item>
         </Form>
+        <Flex justify="center" align="center" gap={10}>
+          or <GoBackButton />
+        </Flex>
       </Flex>
     </Flex>
   );

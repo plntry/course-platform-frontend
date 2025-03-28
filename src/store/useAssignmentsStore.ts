@@ -6,6 +6,7 @@ interface AssignmentsState {
   loading: boolean;
   currentEditingAssignment: CourseAssignment | null;
   isModalVisible: boolean;
+  percentDone: number;
   fetchAssignments: (sectionId: number) => Promise<void>;
   addAssignment: (assignmentData: Omit<CourseAssignment, "id">) => void;
   editAssignment: (updatedAssignment: CourseAssignment) => void;
@@ -13,6 +14,7 @@ interface AssignmentsState {
   showAddModal: () => void;
   showEditModal: (assignment: CourseAssignment) => void;
   hideModal: () => void;
+  increasePercentDone: () => void;
 }
 
 export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
@@ -20,11 +22,12 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
   loading: false,
   currentEditingAssignment: null,
   isModalVisible: false,
+  percentDone: 0,
 
   fetchAssignments: async (sectionId: number) => {
     set({ loading: true });
     try {
-      // Replace this with your actual API call.
+      // TODO: replace this with actual API call
       const dummyData: CourseAssignment[] = [
         {
           id: 1,
@@ -38,7 +41,7 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
           id: 2,
           title: "Dummy Assignment 2",
           description: "Description for Assignment 2",
-          due_date: "2025-03-26T11:16:19.325Z",
+          due_date: "2025-03-28T11:16:19.325Z",
           teacher_comments: "Teacher comments for A2",
           files: "FileA2.pdf",
         },
@@ -53,7 +56,7 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
   },
 
   addAssignment: (assignmentData) => {
-    const newId = Math.floor(Math.random() * 10000); // Replace with proper ID generation
+    const newId = Math.floor(Math.random() * 10000);
     const newAssignment: CourseAssignment = { id: newId, ...assignmentData };
     set({ assignments: [...get().assignments, newAssignment] });
   },
@@ -82,5 +85,12 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
 
   hideModal: () => {
     set({ isModalVisible: false });
+  },
+
+  increasePercentDone: () => {
+    set((state) => {
+      const newPercent = state.percentDone + 50;
+      return { percentDone: newPercent > 100 ? 100 : newPercent };
+    });
   },
 }));
