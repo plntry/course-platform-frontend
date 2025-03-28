@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { Button, Flex, Grid, Input, Modal, Tabs, TabsProps } from "antd";
+import {
+  Button,
+  Flex,
+  Grid,
+  Input,
+  Modal,
+  Progress,
+  Tabs,
+  TabsProps,
+} from "antd";
 import { Params, useLoaderData } from "react-router";
 import { CourseSection } from "../../models/Course";
 import AssignmentsList from "../../components/AssignmentsList";
@@ -7,6 +16,7 @@ import classes from "./CourseSections.module.css";
 import { useAuthStore } from "../../store/useAuthStore";
 import { GUEST_ROLE, UserRoles } from "../../models/User";
 import TitleComp from "../../components/Title";
+import { useAssignmentsStore } from "../../store/useAssignmentsStore";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
@@ -21,8 +31,10 @@ const CourseSections: React.FC = () => {
   const tabPosition = md ? "left" : "top";
   const tabSize = md ? "middle" : "small";
 
-  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-  // const role = UserRoles.STUDENT;
+  const { percentDone, increasePercentDone } = useAssignmentsStore();
+
+  // const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
+  const role = UserRoles.STUDENT;
   const retrievedSections = useLoaderData();
 
   const [activeKey, setActiveKey] = useState("1");
@@ -135,7 +147,7 @@ const CourseSections: React.FC = () => {
 
   return (
     <Flex vertical align="center" gap={20}>
-      <TitleComp>Course's Sections</TitleComp>
+      <TitleComp>Assignments</TitleComp>
       {role === UserRoles.TEACHER && (
         <Button
           onClick={showModal}
@@ -143,6 +155,9 @@ const CourseSections: React.FC = () => {
         >
           Add Section
         </Button>
+      )}
+      {role === UserRoles.STUDENT && (
+        <Progress percent={percentDone} type="line" />
       )}
       {sections.length ? (
         <Tabs
@@ -192,34 +207,6 @@ export const loader = async ({ params }: { params: Params }) => {
     {
       title: "Section 2",
       id: 2,
-    },
-    {
-      title: "Section 3",
-      id: 3,
-    },
-    {
-      title: "Section 1",
-      id: 4,
-    },
-    {
-      title: "Section 2",
-      id: 5,
-    },
-    {
-      title: "Section 3",
-      id: 6,
-    },
-    {
-      title: "Section 1",
-      id: 7,
-    },
-    {
-      title: "Section 2",
-      id: 8,
-    },
-    {
-      title: "Section 3",
-      id: 9,
     },
   ];
 

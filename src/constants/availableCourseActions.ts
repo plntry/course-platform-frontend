@@ -78,7 +78,7 @@ export const courseActions: CourseActions = {
     },
   },
   sections: {
-    title: "Sections",
+    title: "Assignments",
     link: PATHS.COURSE_SECTIONS.link,
     dynamicParam: {
       stringToReplace: ":courseId",

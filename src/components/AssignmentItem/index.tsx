@@ -10,11 +10,11 @@ import DeleteModal from "../DeleteModal";
 const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
   assignment,
 }) => {
-  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-  // const role = UserRoles.STUDENT;
+  // const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
+  const role = UserRoles.STUDENT;
   console.log({ assignment });
 
-  const { showEditModal } = useAssignmentsStore();
+  const { showEditModal, increasePercentDone } = useAssignmentsStore();
   const [showDelete, setShowDelete] = useState(false);
 
   const today = dayjs();
@@ -57,7 +57,7 @@ const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
         </Space>
       )}
       {canViewDetails && role === UserRoles.STUDENT && (
-        <Button type="primary" onClick={() => {}}>
+        <Button type="primary" onClick={increasePercentDone}>
           Mark As Done
         </Button>
       )}

@@ -133,7 +133,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             >
               Too many failed login attempts.
             </Paragraph>
-            <Paragraph>
+            <Paragraph style={{ textAlign: "center" }}>
               <span style={{ color: "black" }}>Please </span>
               <Link
                 to={PATHS.REQUEST_PASSWORD_RESET.link}
