@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create .env file
+        run: echo "VITE_API_BASE_URL=${{secrets.VITE_API_BASE_URL}}" >> .env
+
       - name: Build frontend
         run: npm run build
 
@@ -30,7 +33,17 @@ jobs:
           args: --delete
         env:
           AWS_S3_BUCKET: team-project-backet 
-          AWS_ACCESS_KEY_ID: ${{ secrets.MY_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.MY_AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{secrets.MY_AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.MY_AWS_SECRET_ACCESS_KEY}}
           SOURCE_DIR: build
+
+      - name: Invalidate CloudFront cache
+        uses: chetan/invalidate-cloudfront-action@master
+        env:
+          DISTRIBUTION: ${{secrets.CLOUDFRONT_DISTRIBUTION_ID}}
+          PATHS: "/*"
+          AWS_REGION: "us-east-1"
+          AWS_ACCESS_KEY_ID: ${{secrets.MY_AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.MY_AWS_SECRET_ACCESS_KEY}}
+
 
