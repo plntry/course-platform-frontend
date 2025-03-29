@@ -38,7 +38,7 @@ jobs:
           SOURCE_DIR: build
 
       - name: Invalidate CloudFront cache
-        uses: chetan/invalidate-cloudfront-action@master
+        uses: chetan/invalidate-cloudfront-action@v2
         env:
           DISTRIBUTION: ${{secrets.CLOUDFRONT_DISTRIBUTION_ID}}
           PATHS: "/*"
