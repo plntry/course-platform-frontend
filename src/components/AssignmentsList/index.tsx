@@ -6,15 +6,26 @@ import { GUEST_ROLE, UserRoles } from "../../models/User";
 import AssignmentItem from "../AssignmentItem";
 import AssignmentModal from "../AssignmentModal";
 import Loader from "../Loader";
+import { useLoaderData } from "react-router";
 
-const AssignmentsList: React.FC<{ sectionId: number }> = ({ sectionId }) => {
+const AssignmentsList: React.FC<{
+  courseId: number;
+  sectionId: number;
+  refreshKey: number;
+}> = ({ courseId, sectionId, refreshKey }) => {
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   const { assignments, loading, fetchAssignments, showAddModal } =
     useAssignmentsStore();
 
   useEffect(() => {
-    fetchAssignments(sectionId);
-  }, [sectionId, fetchAssignments]);
+    const loadAssignments = async () => {
+      // Clear previous assignments first
+      useAssignmentsStore.setState({ assignments: [] });
+      await fetchAssignments(String(courseId), sectionId);
+    };
+
+    loadAssignments();
+  }, [sectionId, refreshKey]);
 
   return (
     <Flex
@@ -36,25 +47,24 @@ const AssignmentsList: React.FC<{ sectionId: number }> = ({ sectionId }) => {
       {loading ? (
         <Loader />
       ) : assignments.length ? (
-        <>
-          <Collapse
-            defaultActiveKey={[]}
-            items={assignments.map((assignment) => ({
-              key: assignment.id.toString(),
-              label: assignment.title,
-              children: <AssignmentItem assignment={assignment} />,
-            }))}
-            style={{ width: "100%" }}
-          />
-          {role === UserRoles.TEACHER && <AssignmentModal />}
-        </>
+        <Collapse
+          defaultActiveKey={[]}
+          items={assignments.map((assignment) => ({
+            key: assignment.id.toString(),
+            label: assignment.title,
+            children: <AssignmentItem assignment={assignment} />,
+          }))}
+          style={{ width: "100%" }}
+        />
       ) : (
         <Flex justify="center" style={{ width: "100%" }}>
           There're no assignments yet
         </Flex>
       )}
+
+      {role === UserRoles.TEACHER && <AssignmentModal sectionId={sectionId} />}
     </Flex>
   );
 };
 
-export default AssignmentsList;
+export default React.memo(AssignmentsList);

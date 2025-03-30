@@ -97,9 +97,7 @@ export const rootLoader: LoaderFunction = async ({ request }) => {
       ? pathname.substring(1)
       : pathname;
 
-  if (!isAuthenticated) {
-    await checkAuth();
-  }
+  await checkAuth();
 
   const { isAuthenticated: updatedIsAuthenticated } = useAuthStore.getState();
 

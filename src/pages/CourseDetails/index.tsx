@@ -120,9 +120,6 @@ const CourseDetails: React.FC = () => {
 export default CourseDetails;
 
 export async function loader({ params }: { params: Params }) {
-  const { checkAuth } = useAuthStore.getState();
-  await checkAuth();
-
   const response = await coursesApi.getById(params.courseId || "");
   if (response.status === 200) {
     return response.data;
