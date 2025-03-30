@@ -33,8 +33,7 @@ const CourseSections: React.FC = () => {
 
   const { percentDone, increasePercentDone } = useAssignmentsStore();
 
-  // const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-  const role = UserRoles.STUDENT;
+  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   const retrievedSections = useLoaderData();
 
   const [activeKey, setActiveKey] = useState("1");

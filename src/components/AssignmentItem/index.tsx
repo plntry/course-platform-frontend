@@ -10,8 +10,7 @@ import DeleteModal from "../DeleteModal";
 const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
   assignment,
 }) => {
-  // const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-  const role = UserRoles.STUDENT;
+  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   console.log({ assignment });
 
   const { showEditModal, increasePercentDone } = useAssignmentsStore();
