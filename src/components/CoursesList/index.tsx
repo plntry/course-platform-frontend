@@ -22,6 +22,8 @@ const CoursesList: React.FC<{
   const isTeacher = role === UserRoles.TEACHER;
   const availableActions: CourseActionConfig[] =
     userAvailableCourseActionsByPage[mode][role];
+    console.log("test");
+    
 
   const screens = useBreakpoint();
   const isSmallScreen = !screens.md && (screens.xs || screens.sm);
