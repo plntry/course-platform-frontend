@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { CourseAssignment } from "../models/Course";
+import { assignmentsApi } from "../api/assignments";
 
 interface AssignmentsState {
   assignments: CourseAssignment[];
@@ -7,10 +8,14 @@ interface AssignmentsState {
   currentEditingAssignment: CourseAssignment | null;
   isModalVisible: boolean;
   percentDone: number;
-  fetchAssignments: (sectionId: number) => Promise<void>;
-  addAssignment: (assignmentData: Omit<CourseAssignment, "id">) => void;
-  editAssignment: (updatedAssignment: CourseAssignment) => void;
-  deleteAssignment: (id: number) => void;
+  fetchAssignments: (courseId: string, sectionId: number) => Promise<void>;
+  addAssignment: (courseId: string, formData: FormData) => Promise<void>;
+  editAssignment: (
+    courseId: string,
+    assignmentId: number,
+    formData: FormData
+  ) => Promise<void>;
+  deleteAssignment: (courseId: string, id: number) => void;
   showAddModal: () => void;
   showEditModal: (assignment: CourseAssignment) => void;
   hideModal: () => void;
@@ -24,55 +29,72 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
   isModalVisible: false,
   percentDone: 0,
 
-  fetchAssignments: async (sectionId: number) => {
+  fetchAssignments: async (courseId: string, sectionId: number) => {
     set({ loading: true });
     try {
-      // TODO: replace this with actual API call
-      const dummyData: CourseAssignment[] = [
-        {
-          id: 1,
-          title: "Dummy Assignment 1",
-          description: "Description for Assignment 1",
-          due_date: "2025-03-20T11:16:19.325Z",
-          teacher_comments: "Teacher comments for A1",
-          files: "FileA1.pdf",
-        },
-        {
-          id: 2,
-          title: "Dummy Assignment 2",
-          description: "Description for Assignment 2",
-          due_date: "2025-03-28T11:16:19.325Z",
-          teacher_comments: "Teacher comments for A2",
-          files: "FileA2.pdf",
-        },
-      ];
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      set({ assignments: dummyData, loading: false });
+      const response = await assignmentsApi.getAllBySection(
+        courseId,
+        String(sectionId)
+      );
+      set({ assignments: response.data, loading: false });
     } catch (error) {
       console.error("Error fetching assignments:", error);
       set({ loading: false });
     }
   },
 
-  addAssignment: (assignmentData) => {
-    const newId = Math.floor(Math.random() * 10000);
-    const newAssignment: CourseAssignment = { id: newId, ...assignmentData };
-    set({ assignments: [...get().assignments, newAssignment] });
+  addAssignment: async (courseId: string, formData: FormData) => {
+    try {
+      const response = await assignmentsApi.create(courseId, formData);
+
+      if (response.status === 201) {
+        const newAssignment = response.data;
+        set({ assignments: [...get().assignments, newAssignment] });
+      }
+    } catch (error) {
+      console.error("Error adding assignment:", error);
+      throw error;
+    }
   },
 
-  editAssignment: (updatedAssignment) => {
-    set({
-      assignments: get().assignments.map((a) =>
-        a.id === updatedAssignment.id ? updatedAssignment : a
-      ),
-    });
+  editAssignment: async (
+    courseId: string,
+    assignmentId: number,
+    formData: FormData
+  ) => {
+    try {
+      const response = await assignmentsApi.update(
+        courseId,
+        String(assignmentId),
+        formData
+      );
+
+      if (response.status === 200) {
+        set({
+          assignments: get().assignments.map((a) =>
+            a.id === assignmentId ? response.data : a
+          ),
+        });
+      }
+    } catch (error) {
+      console.error("Error updating assignment:", error);
+      throw error;
+    }
   },
 
-  deleteAssignment: (id: number) => {
-    set({
-      assignments: get().assignments.filter((a) => a.id !== id),
-    });
+  deleteAssignment: async (courseId: string, id: number) => {
+    try {
+      const response = await assignmentsApi.delete(courseId, String(id));
+
+      if (response.status === 200) {
+        set({
+          assignments: get().assignments.filter((a) => a.id !== id),
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting assignment:", error);
+      throw error;
+    }
   },
 
   showAddModal: () => {
