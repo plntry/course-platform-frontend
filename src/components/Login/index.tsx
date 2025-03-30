@@ -1,6 +1,5 @@
 import React, { JSX } from "react";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Flex } from "antd";
+import { Button, Form, Flex } from "antd";
 import AuthForm from "../AuthForm";
 import { formInputs } from "../../constants/formInputs";
 

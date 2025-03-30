@@ -1,9 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import dayjs from "dayjs";
-import { Modal, Form, Input, DatePicker } from "antd";
+import { Modal, Form, Input, DatePicker, Upload, Button } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import type { UploadFile } from "antd/es/upload/interface";
 import { useAssignmentsStore } from "../../store/useAssignmentsStore";
+import { useLoaderData } from "react-router";
 
-const AssignmentModal: React.FC = () => {
+const AssignmentModal: React.FC<{ sectionId: number }> = ({ sectionId }) => {
+  const { courseId } = useLoaderData();
   const {
     isModalVisible,
     currentEditingAssignment,
@@ -22,8 +26,10 @@ const AssignmentModal: React.FC = () => {
       currentEditingAssignment.id !== prevAssignmentId.current
     ) {
       form.setFieldsValue({
-        ...currentEditingAssignment,
+        title: currentEditingAssignment.title,
+        description: currentEditingAssignment.description,
         due_date: dayjs(currentEditingAssignment.due_date),
+        teacher_comments: currentEditingAssignment.teacher_comments,
       });
       prevAssignmentId.current = currentEditingAssignment.id;
     } else if (!currentEditingAssignment && prevAssignmentId.current !== null) {
@@ -32,32 +38,42 @@ const AssignmentModal: React.FC = () => {
     }
   }, [isModalVisible, currentEditingAssignment, form]);
 
-  const handleOk = () => {
-    form
-      .validateFields()
-      .then((values) => {
-        console.log(values.due_date);
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
 
-        const assignmentData = {
-          title: values.title,
-          description: values.description,
-          due_date: values.due_date.toISOString(),
-          teacher_comments: values.teacher_comments,
-          files: values.files,
-        };
-        if (currentEditingAssignment) {
-          editAssignment({
-            id: currentEditingAssignment.id,
-            ...assignmentData,
-          });
-        } else {
-          addAssignment(assignmentData);
-        }
-        hideModal();
-      })
-      .catch((info) => {
-        console.log("Validation Failed:", info);
-      });
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("description", values.description);
+      formData.append("due_date", values.due_date.toISOString());
+      formData.append("teacher_comments", values.teacher_comments || "");
+      formData.append("section_id", String(sectionId));
+      formData.append("order", "0");
+
+      // Handle file upload
+      const fileList = values.file as UploadFile[];
+      if (fileList?.[0]?.originFileObj) {
+        formData.append("file", fileList[0].originFileObj);
+      }
+
+      if (currentEditingAssignment) {
+        await editAssignment(courseId, currentEditingAssignment.id, formData);
+      } else {
+        await addAssignment(courseId, formData);
+      }
+
+      hideModal();
+      form.resetFields();
+    } catch (error) {
+      console.error("Error saving assignment:", error);
+    }
+  };
+
+  const normFile = (e: any) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
   };
 
   return (
@@ -87,13 +103,23 @@ const AssignmentModal: React.FC = () => {
           name="due_date"
           rules={[{ required: true, message: "Please select the due date" }]}
         >
-          <DatePicker />
+          <DatePicker showTime />
         </Form.Item>
         <Form.Item label="Teacher Comments" name="teacher_comments">
           <Input.TextArea />
         </Form.Item>
-        <Form.Item label="Files" name="files">
-          <Input />
+        <Form.Item
+          label="File"
+          name="file"
+          valuePropName="fileList"
+          getValueFromEvent={normFile}
+        >
+          <Upload
+            maxCount={1}
+            beforeUpload={() => false} // Prevent auto upload
+          >
+            <Button icon={<UploadOutlined />}>Select File</Button>
+          </Upload>
         </Form.Item>
       </Form>
     </Modal>

@@ -30,7 +30,7 @@ export const courseActions: CourseActions = {
     visible: {
       [CoursePage.AllCourses]: true,
       [CoursePage.MyCourses]: false,
-      [CoursePage.CourseDetails]: true,
+      [CoursePage.CourseDetails]: false,
     },
     buttonProps: {
       type: "primary",
@@ -87,7 +87,7 @@ export const courseActions: CourseActions = {
     visible: {
       [CoursePage.AllCourses]: false,
       [CoursePage.MyCourses]: true,
-      [CoursePage.CourseDetails]: true,
+      [CoursePage.CourseDetails]: false,
     },
   },
 };

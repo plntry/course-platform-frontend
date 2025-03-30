@@ -40,9 +40,14 @@ export interface CourseSection {
 
 export interface CreateCourseSection {
   title: string;
-  description: string;
   order: number;
-  course_id: number;
+}
+
+interface AssignmentFile {
+  key: string;
+  size: number;
+  last_modified: string;
+  filename: string;
 }
 
 export interface CourseAssignment {
@@ -54,6 +59,7 @@ export interface CourseAssignment {
   order: number;
   course_id: number;
   section_id: number;
+  files: AssignmentFile[];
 }
 
 export enum CoursePage {
