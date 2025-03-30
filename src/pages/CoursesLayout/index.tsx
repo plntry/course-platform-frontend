@@ -10,7 +10,7 @@ const CoursesLayout: React.FC = () => {
     location.pathname === PATHS.MY_COURSES.link;
 
   return (
-    <Flex vertical gap={20} style={{ height: "100%" }}>
+    <Flex vertical gap={5} style={{ height: "100%" }}>
       {!isCoursesPage && <GoBackButton />}
       <Outlet />
     </Flex>

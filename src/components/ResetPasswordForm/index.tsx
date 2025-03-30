@@ -1,18 +1,8 @@
 import React from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Typography,
-  notification,
-  Flex,
-  theme,
-} from "antd";
-import { useNavigate } from "react-router";
-import { authApi } from "../../api/auth";
+import { Form, Button, Typography, Flex, theme } from "antd";
 import classes from "./ResetPasswordForm.module.css";
-import { PATHS } from "../../routes/paths";
 import { ResetPasswordFormProps } from "../../models/Auth";
+import GoBackButton from "../GoBackButton";
 
 const { Title } = Typography;
 
@@ -43,6 +33,9 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({
             </Button>
           </Form.Item>
         </Form>
+        <Flex justify="center" align="center" gap={10}>
+          or <GoBackButton />
+        </Flex>
       </Flex>
     </Flex>
   );

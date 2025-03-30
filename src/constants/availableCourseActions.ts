@@ -77,13 +77,31 @@ export const courseActions: CourseActions = {
       type: "dashed",
     },
   },
+  sections: {
+    title: "Assignments",
+    link: PATHS.COURSE_SECTIONS.link,
+    dynamicParam: {
+      stringToReplace: ":courseId",
+      propName: "id",
+    },
+    visible: {
+      [CoursePage.AllCourses]: false,
+      [CoursePage.MyCourses]: true,
+      [CoursePage.CourseDetails]: true,
+    },
+  },
 };
 
 export const userAvailableCourseActions: UserAvailableCourseActions = {
-  [UserRoles.STUDENT]: [courseActions.enroll, courseActions.more],
+  [UserRoles.STUDENT]: [
+    courseActions.enroll,
+    courseActions.sections,
+    courseActions.more,
+  ],
   [UserRoles.TEACHER]: [
     courseActions.edit,
     courseActions.delete,
+    courseActions.sections,
     courseActions.more,
   ],
   [GUEST_ROLE]: [courseActions.more],

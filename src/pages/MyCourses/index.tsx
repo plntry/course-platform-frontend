@@ -1,13 +1,18 @@
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigation } from "react-router";
 import { CoursePage, GetCourse } from "../../models/Course";
-import { coursesApi } from "../../api/courses";
 import CoursesList from "../../components/CoursesList";
 import { useAuthStore } from "../../store/useAuthStore";
 import { studentApi } from "../../api/students";
 import { UserRoles } from "../../models/User";
+import Loader from "../../components/Loader";
 
 const MyCourses: React.FC = () => {
   const courses = useLoaderData();
+  const navigation = useNavigation();
+
+  if (navigation.state === "loading") {
+    return <Loader />;
+  }
 
   return <CoursesList courses={courses} mode={CoursePage.MyCourses} />;
 };
