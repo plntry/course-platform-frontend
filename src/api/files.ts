@@ -1,5 +1,4 @@
 import api from ".";
-import { CourseSection, CreateCourseSection } from "../models/Course";
 
 const FILES_BASE_URL = "/files";
 
