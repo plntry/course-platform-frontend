@@ -6,26 +6,65 @@ import { GUEST_ROLE, UserRoles } from "../../models/User";
 import AssignmentItem from "../AssignmentItem";
 import AssignmentModal from "../AssignmentModal";
 import Loader from "../Loader";
-import { useLoaderData } from "react-router";
 
-const AssignmentsList: React.FC<{
+interface AssignmentsListProps {
   courseId: number;
   sectionId: number;
-  refreshKey: number;
-}> = ({ courseId, sectionId, refreshKey }) => {
+  isActive: boolean;
+}
+
+const AssignmentsList: React.FC<AssignmentsListProps> = ({
+  courseId,
+  sectionId,
+  isActive,
+}) => {
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   const { assignments, loading, fetchAssignments, showAddModal } =
     useAssignmentsStore();
 
+  // Move debug logging to component level
+  const componentKey = `section-${sectionId}`;
+
+  // Log assignments whenever they change
+  // useEffect(() => {
+  //   console.log("Current assignments:", assignments);
+  // }, [assignments]);
+
+  // Fetch assignments when section becomes active
   useEffect(() => {
     const loadAssignments = async () => {
-      // Clear previous assignments first
-      useAssignmentsStore.setState({ assignments: [] });
-      await fetchAssignments(String(courseId), sectionId);
+      try {
+        // Only fetch if the tab is active
+        if (!isActive) return;
+
+        const validCourseId = Number(courseId);
+        const validSectionId = Number(sectionId);
+
+        if (isNaN(validCourseId) || isNaN(validSectionId)) {
+          console.error("Invalid courseId or sectionId:", {
+            courseId,
+            sectionId,
+          });
+          return;
+        }
+
+        console.debug("Loading assignments for section:", {
+          sectionId: validSectionId,
+          isActive,
+        });
+
+        // Clear previous assignments first
+        useAssignmentsStore.setState({ assignments: [], loading: true });
+
+        // Convert to string only when making the API call
+        await fetchAssignments(validCourseId.toString(), validSectionId);
+      } catch (error) {
+        console.error("Error loading assignments:", error);
+      }
     };
 
     loadAssignments();
-  }, [sectionId, refreshKey]);
+  }, [sectionId, courseId, fetchAssignments, isActive]);
 
   return (
     <Flex
@@ -67,4 +106,10 @@ const AssignmentsList: React.FC<{
   );
 };
 
-export default React.memo(AssignmentsList);
+export default React.memo(AssignmentsList, (prevProps, nextProps) => {
+  return (
+    prevProps.sectionId === nextProps.sectionId &&
+    prevProps.courseId === nextProps.courseId &&
+    prevProps.isActive === nextProps.isActive
+  );
+});

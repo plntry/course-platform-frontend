@@ -32,9 +32,14 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
   fetchAssignments: async (courseId: string, sectionId: number) => {
     set({ loading: true });
     try {
+      const validSectionId = Number(sectionId);
+      if (isNaN(validSectionId)) {
+        throw new Error("Invalid sectionId");
+      }
+
       const response = await assignmentsApi.getAllBySection(
         courseId,
-        String(sectionId)
+        validSectionId.toString()
       );
       set({ assignments: response.data, loading: false });
     } catch (error) {

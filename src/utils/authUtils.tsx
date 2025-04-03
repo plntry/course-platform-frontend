@@ -89,7 +89,7 @@ export const handleAuthResponse = async (
 };
 
 export const rootLoader: LoaderFunction = async ({ request }) => {
-  const { isAuthenticated, checkAuth } = useAuthStore.getState();
+  const { checkAuth } = useAuthStore.getState();
   const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
   const pathname = new URL(request.url).pathname;
   const currentPath =

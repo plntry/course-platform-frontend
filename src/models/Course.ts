@@ -33,12 +33,11 @@ export interface PostCourse {
 export interface CourseSection {
   id: number;
   title: string;
-  description: string;
   order: number;
-  course_id: number;
+  assignments: CourseAssignment[];
 }
 
-export interface CreateCourseSection {
+export interface CreateUpdateCourseSection {
   title: string;
   order: number;
 }
