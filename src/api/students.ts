@@ -1,16 +1,16 @@
 import api from ".";
 
-const STUDENT_BASE_URL = "/student";
+const STUDENT_BASE_URL = "/students";
 
 export const studentApi = {
   getAllStudentsByCourse: async (courseId: string) =>
-    await api.get(`${STUDENT_BASE_URL}/courses/${courseId}`),
+    await api.get(`${STUDENT_BASE_URL}/teaching/courses/${courseId}/students`),
   getStudentCourses: async () =>
-    await api.get(`${STUDENT_BASE_URL}/my_courses`),
+    await api.get(`${STUDENT_BASE_URL}/enrollments/courses`),
   getTeacherCourses: async () =>
-    await api.get(`${STUDENT_BASE_URL}/getTeachersCourses`),
+    await api.get(`${STUDENT_BASE_URL}/teaching/courses`),
   enrollToCourse: async (courseId: string) =>
-    await api.put(`${STUDENT_BASE_URL}/add_to_course/${courseId}`),
+    await api.put(`${STUDENT_BASE_URL}/enrollments/courses/${courseId}`),
   deleteFromCourse: async (studentId: string, courseId: string) =>
     await api.delete(`${STUDENT_BASE_URL}/${studentId}/${courseId}`),
 };

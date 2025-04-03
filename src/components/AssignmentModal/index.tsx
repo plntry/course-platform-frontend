@@ -48,7 +48,10 @@ const AssignmentModal: React.FC = () => {
       formData.append("description", values.description);
       formData.append("due_date", values.due_date.toISOString());
       formData.append("teacher_comments", values.teacher_comments || "");
-      formData.append("section_id", String(currentSectionId));
+      formData.append(
+        "section_id",
+        String(currentSectionId || currentEditingAssignment?.section_id)
+      );
       formData.append("order", "0");
 
       // Handle file upload
