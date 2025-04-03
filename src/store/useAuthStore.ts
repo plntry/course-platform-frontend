@@ -41,13 +41,18 @@ export const useAuthStore = create<AuthState>()(
             } catch {
               set({ user: null, isAuthenticated: false });
             }
+          } else {
+            set({ user: null, isAuthenticated: false });
           }
         }
       },
 
       logout: async () => {
-        await authApi.logout();
-        set({ user: null, isAuthenticated: false });
+        try {
+          await authApi.logout();
+        } finally {
+          set({ user: null, isAuthenticated: false });
+        }
       },
     }),
     {

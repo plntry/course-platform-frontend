@@ -1,5 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { authApi } from "./auth";
+import { ROLE_PATHS } from "../routes/paths";
+import { GUEST_ROLE } from "../models/User";
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -35,18 +37,24 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomAxiosRequestConfig;
+    const pathname = new URL(originalRequest.url || "", BASE_URL).pathname;
+    const currentPath = pathname.startsWith("/")
+      ? pathname.substring(1)
+      : pathname;
+    const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
+
+    // Don't retry for guest paths
+    if (guestAccessiblePaths.has(currentPath)) {
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then(() => {
-            return api(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
+          .then(() => api(originalRequest))
+          .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
@@ -56,12 +64,11 @@ api.interceptors.response.use(
         await authApi.refreshToken();
         processQueue(null);
         isRefreshing = false;
-
         return api(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError as Error);
+        processQueue(null);
         isRefreshing = false;
-        return Promise.reject(refreshError);
+        return Promise.reject(error);
       }
     }
 

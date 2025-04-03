@@ -6,7 +6,7 @@ import type { UploadFile } from "antd/es/upload/interface";
 import { useAssignmentsStore } from "../../store/useAssignmentsStore";
 import { useLoaderData } from "react-router";
 
-const AssignmentModal: React.FC<{ sectionId: number }> = ({ sectionId }) => {
+const AssignmentModal: React.FC = () => {
   const { courseId } = useLoaderData();
   const {
     isModalVisible,
@@ -14,6 +14,7 @@ const AssignmentModal: React.FC<{ sectionId: number }> = ({ sectionId }) => {
     hideModal,
     addAssignment,
     editAssignment,
+    currentSectionId,
   } = useAssignmentsStore();
   const [form] = Form.useForm();
   const prevAssignmentId = useRef<number | null>(null);
@@ -47,7 +48,7 @@ const AssignmentModal: React.FC<{ sectionId: number }> = ({ sectionId }) => {
       formData.append("description", values.description);
       formData.append("due_date", values.due_date.toISOString());
       formData.append("teacher_comments", values.teacher_comments || "");
-      formData.append("section_id", String(sectionId));
+      formData.append("section_id", String(currentSectionId));
       formData.append("order", "0");
 
       // Handle file upload
