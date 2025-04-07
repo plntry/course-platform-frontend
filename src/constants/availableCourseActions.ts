@@ -55,7 +55,7 @@ export const courseActions: CourseActions = {
     visible: {
       [CoursePage.AllCourses]: false,
       [CoursePage.MyCourses]: true,
-      [CoursePage.CourseDetails]: true,
+      [CoursePage.CourseDetails]: false,
     },
     buttonProps: {
       type: "dashed",
@@ -71,7 +71,7 @@ export const courseActions: CourseActions = {
     visible: {
       [CoursePage.AllCourses]: false,
       [CoursePage.MyCourses]: true,
-      [CoursePage.CourseDetails]: true,
+      [CoursePage.CourseDetails]: false,
     },
     buttonProps: {
       type: "dashed",
@@ -88,6 +88,22 @@ export const courseActions: CourseActions = {
       [CoursePage.AllCourses]: false,
       [CoursePage.MyCourses]: true,
       [CoursePage.CourseDetails]: false,
+    },
+  },
+  rate: {
+    title: "Rate",
+    link: PATHS.COURSE_RATE.link,
+    dynamicParam: {
+      stringToReplace: ":courseId",
+      propName: "id",
+    },
+    visible: {
+      [CoursePage.AllCourses]: false,
+      [CoursePage.MyCourses]: true,
+      [CoursePage.CourseDetails]: false,
+    },
+    buttonProps: {
+      type: "dashed",
     },
   },
 };

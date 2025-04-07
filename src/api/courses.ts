@@ -12,4 +12,6 @@ export const coursesApi = {
     await api.put(`${COURSES_BASE_URL}/${courseId}`, body),
   delete: async (courseId: string) =>
     await api.delete(`${COURSES_BASE_URL}/${courseId}`),
+  rate: async (courseId: string, rating: number) =>
+    await api.post(`${COURSES_BASE_URL}/${courseId}/rate`, { rating }),
 };

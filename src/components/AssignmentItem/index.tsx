@@ -96,11 +96,6 @@ const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
           </Button>
         </Space>
       )}
-      {canViewDetails && role === UserRoles.STUDENT && (
-        <Button type="primary" onClick={increasePercentDone}>
-          Mark As Done
-        </Button>
-      )}
       {role === UserRoles.TEACHER && showDelete && (
         <DeleteModal
           data={assignment}

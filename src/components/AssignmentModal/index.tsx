@@ -31,6 +31,14 @@ const AssignmentModal: React.FC = () => {
         description: currentEditingAssignment.description,
         due_date: dayjs(currentEditingAssignment.due_date),
         teacher_comments: currentEditingAssignment.teacher_comments,
+        file: currentEditingAssignment.files?.map((file) => ({
+          uid: file.key,
+          name: file.filename,
+          status: "done",
+          url: file.key,
+          size: file.size,
+          lastModified: new Date(file.last_modified).getTime(),
+        })),
       });
       prevAssignmentId.current = currentEditingAssignment.id;
     } else if (!currentEditingAssignment && prevAssignmentId.current !== null) {
@@ -56,8 +64,14 @@ const AssignmentModal: React.FC = () => {
 
       // Handle file upload
       const fileList = values.file as UploadFile[];
-      if (fileList?.[0]?.originFileObj) {
-        formData.append("file", fileList[0].originFileObj);
+      if (fileList?.length > 0) {
+        if (fileList[0].originFileObj) {
+          formData.append("file", fileList[0].originFileObj);
+        } else if (fileList[0].url) {
+          formData.append("file_key", fileList[0].url);
+        }
+      } else {
+        formData.append("delete_files", "true");
       }
 
       if (currentEditingAssignment) {

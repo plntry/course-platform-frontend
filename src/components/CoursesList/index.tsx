@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Table, Flex, theme, Tag, Rate, Button, Grid } from "antd";
+import {
+  Table,
+  Flex,
+  theme,
+  Tag,
+  Rate,
+  Button,
+  Grid,
+  notification,
+} from "antd";
 import type { TableColumnsType } from "antd";
 import { GetCourse, CourseActionConfig, CoursePage } from "../../models/Course";
 import { userAvailableCourseActionsByPage } from "../../constants/availableCourseActions";
@@ -33,6 +42,11 @@ const CoursesList: React.FC<{
 
   const [searchText, setSearchText] = useState("");
   const [deletedCourseIds, setDeletedCourseIds] = useState<number[]>([]);
+  const [coursesRatings, setCoursesRatings] = useState<Record<number, number>>(
+    {}
+  );
+
+  const [api, contextHolder] = notification.useNotification();
 
   const filteredCourses = courses
     .filter((course) => !deletedCourseIds.includes(course.id))
@@ -83,8 +97,14 @@ const CoursesList: React.FC<{
       responsive: ["md"],
       showSorterTooltip: { target: "full-header" },
       sorter: (a, b) => a.rating - b.rating,
-      render: (rating: number) => (
-        <Rate disabled allowHalf defaultValue={rating} />
+      render: (rating: number, record: GetCourse) => (
+        <Flex align="center" justify="center">
+          <Rate
+            disabled
+            allowHalf
+            value={coursesRatings[record.id] || rating}
+          />
+        </Flex>
       ),
     },
     {
@@ -103,6 +123,7 @@ const CoursesList: React.FC<{
 
   return (
     <Flex vertical align="center" gap={20}>
+      {contextHolder}
       <TitleComp>
         {mode === "myCourses" ? "My Courses" : "Find Your Next Course"}
       </TitleComp>
