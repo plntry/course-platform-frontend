@@ -12,5 +12,7 @@ export const studentApi = {
   enrollToCourse: async (courseId: string) =>
     await api.post(`${STUDENT_BASE_URL}/enrollments/courses/${courseId}`),
   deleteFromCourse: async (studentId: string, courseId: string) =>
-    await api.delete(`${STUDENT_BASE_URL}/${studentId}/${courseId}`),
+    await api.delete(
+      `${STUDENT_BASE_URL}/enrollments/courses/${courseId}/students/${studentId}`
+    ),
 };

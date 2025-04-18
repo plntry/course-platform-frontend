@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// src/pages/CourseDetails.tsx
+import { useEffect, useState, lazy, Suspense, useCallback } from "react";
 import { useRouteLoaderData, useNavigate, Params } from "react-router";
 import {
   Typography,
@@ -23,7 +24,10 @@ import { GUEST_ROLE, UserRoles } from "../../models/User";
 import { getCategoryColor } from "../../utils/courseUtils";
 import { useWebSocket, WebSocketMessage } from "../../services/websocket";
 import { APIError } from "../../models/APIResponse";
-import CommentsList from "../../components/CommentsList";
+import Loader from "../../components/Loader";
+
+const CommentsList = lazy(() => import("../../components/CommentsList"));
+
 const { Title, Paragraph, Text } = Typography;
 
 const CourseDetails: React.FC = () => {
@@ -32,8 +36,8 @@ const CourseDetails: React.FC = () => {
     token: { colorPrimaryActive, colorTextSecondary, colorTextBase },
   } = theme.useToken();
   const [api, contextHolder] = notification.useNotification();
-  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
 
+  const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   const availableActions: CourseActionConfig[] =
     userAvailableCourseActionsByPage[CoursePage.CourseDetails][role];
 
@@ -47,13 +51,18 @@ const CourseDetails: React.FC = () => {
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [tempRating, setTempRating] = useState<number>(0);
 
-  // Handler for incoming WebSocket messages
-  const handleWebSocketMessage = (message: WebSocketMessage) => {
-    if (message.event === "rating_updated" && message.course_id === course.id) {
-      setCourseRating(message.new_rating || courseRating);
-    }
-    console.log("Received message:", message);
-  };
+  const handleWebSocketMessage = useCallback(
+    (message: WebSocketMessage) => {
+      console.log("WS received:", message);
+      if (
+        message.event === "rating_updated" &&
+        message.course_id === course.id
+      ) {
+        setCourseRating((prev) => message.new_rating ?? prev);
+      }
+    },
+    [course.id]
+  );
 
   const { joinRoom, leaveRoom } = useWebSocket(handleWebSocketMessage);
 
@@ -69,7 +78,6 @@ const CourseDetails: React.FC = () => {
       await coursesApi.rate(course.id.toString(), value);
     } catch (error: any) {
       const errorDetail = (error?.response?.data as APIError)?.detail;
-
       const errorDescription =
         Array.isArray(errorDetail) &&
         typeof errorDetail[0] === "object" &&
@@ -129,7 +137,7 @@ const CourseDetails: React.FC = () => {
               color: colorTextSecondary,
               lineHeight: "1.8",
               textAlign: "justify",
-              margin: "0",
+              margin: 0,
             }}
           >
             {course.description}
@@ -183,11 +191,13 @@ const CourseDetails: React.FC = () => {
               Course Rating:
             </Text>
             <Rate allowHalf value={courseRating} disabled />
-            {role === UserRoles.STUDENT && (
-              <Button onClick={() => setIsRatingModalOpen(true)}>
+            {
+              /*role === UserRoles.STUDENT && course.is_enrolled &&*/ <Button
+                onClick={() => setIsRatingModalOpen(true)}
+              >
                 Rate this course
               </Button>
-            )}
+            }
           </Flex>
 
           <Modal
@@ -207,7 +217,15 @@ const CourseDetails: React.FC = () => {
 
           <CourseActionsComp course={course} actions={availableActions} />
         </Flex>
-        <CommentsList />
+
+        <Suspense fallback={<Loader />}>
+          <CommentsList
+            shouldShowAddComment={
+              role === UserRoles.TEACHER || course.is_enrolled
+            }
+          />
+        </Suspense>
+
         {contextHolder}
       </Flex>
     </>

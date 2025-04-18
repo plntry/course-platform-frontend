@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Button, Space, Typography, message } from "antd";
-import { CourseAssignment } from "../../models/Course";
+import {
+  CourseAssignment,
+  CourseAssignmentSubmissionType,
+} from "../../models/Course";
 import { GUEST_ROLE, UserRoles } from "../../models/User";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useAssignmentsStore } from "../../store/useAssignmentsStore";
@@ -8,6 +11,7 @@ import { assignmentFilesApi } from "../../api/files";
 import dayjs from "dayjs";
 import DeleteModal from "../DeleteModal";
 import { useLoaderData } from "react-router";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
   assignment,
@@ -22,34 +26,19 @@ const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
   const dueDate = dayjs(assignment.due_date);
   const canViewDetails = role === UserRoles.TEACHER || today.isBefore(dueDate);
 
-  const handleFileDownload = async (fileKey: string, filename: string) => {
-    try {
-      const response = await assignmentFilesApi.download(fileKey);
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      });
-
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename || fileKey.split("/").pop() || "downloaded-file";
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      message.error("Failed to download file");
-    }
-  };
-
   const assignmentDetails = [
     { title: "Description", value: assignment.description },
     { title: "Due Date", value: dueDate.format("YYYY-MM-DD") },
     { title: "Teacher Comments", value: assignment.teacher_comments },
+    {
+      title: "Submission Type",
+      value: assignment.submission_type
+        ? assignment.submission_type ===
+          CourseAssignmentSubmissionType.AutoComplete
+          ? "Auto Complete"
+          : "File Submission"
+        : "Auto Complete",
+    },
   ];
 
   return (

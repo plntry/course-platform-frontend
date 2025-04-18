@@ -1,5 +1,4 @@
 import api from ".";
-import { PostCourse } from "../models/Course";
 
 const PROGRESS_BASE_URL = "/progress";
 
@@ -12,4 +11,10 @@ export const progressApi = {
     await api.post(
       `${PROGRESS_BASE_URL}/mark-assignment-complete/${assignmentId}`
     ),
+  markAsDoneWithFile: async (assignmentId: string, file: FormData) =>
+    await api.post(`/file-storage/assignments/${assignmentId}/submit`, file, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
 };

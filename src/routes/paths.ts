@@ -53,6 +53,10 @@ export const PATHS = {
     link: "/students",
     roles: [UserRoles.TEACHER],
   },
+  STUDENT_ASSIGNMENTS_FOR_REVIEW: {
+    link: "/assignments-review",
+    roles: [UserRoles.TEACHER],
+  },
   LOGOUT: {
     link: "logout",
     roles: Object.values(UserRoles),

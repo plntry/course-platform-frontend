@@ -26,6 +26,10 @@ import ResetPassword from "../components/ResetPassword";
 import CourseSections, {
   loader as courseSectionsLoader,
 } from "../pages/CourseSections";
+import AssignmentsForReview, {
+  loader as assignmentsForReviewLoader,
+} from "../pages/AssignmentsForReview";
+import StudentsLayout from "../pages/StudentsLayout";
 
 export const routes = [
   {
@@ -117,13 +121,31 @@ export const routes = [
         ],
       },
       {
+        id: "studentsRoot",
         path: PATHS.STUDENTS.link,
+        element: <StudentsLayout />,
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedRoute allowedRoles={[...PATHS.STUDENTS.roles]}>
+                <StudentsPage />
+              </ProtectedRoute>
+            ),
+            loader: studentsPageLoader,
+          },
+        ],
+      },
+      {
+        path: PATHS.STUDENT_ASSIGNMENTS_FOR_REVIEW.link,
         element: (
-          <ProtectedRoute allowedRoles={[...PATHS.STUDENTS.roles]}>
-            <StudentsPage />
+          <ProtectedRoute
+            allowedRoles={[...PATHS.STUDENT_ASSIGNMENTS_FOR_REVIEW.roles]}
+          >
+            <AssignmentsForReview />
           </ProtectedRoute>
         ),
-        loader: studentsPageLoader,
+        loader: assignmentsForReviewLoader,
       },
       {
         path: PATHS.LOGOUT.link,

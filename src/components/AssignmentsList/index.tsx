@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Collapse, Button, Flex, Space, Tooltip } from "antd";
+import { Collapse, Button, Flex, Space, Tooltip, Upload, message } from "antd";
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   EyeInvisibleOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import { useAssignmentsStore } from "../../store/useAssignmentsStore";
 import { useAuthStore } from "../../store/useAuthStore";
@@ -14,6 +15,8 @@ import Loader from "../Loader";
 import dayjs from "dayjs";
 import { progressApi } from "../../api/progress";
 import { notification } from "antd";
+import { CourseAssignmentSubmissionType } from "../../models/Course";
+import api from "../../api";
 
 interface AssignmentsListProps {
   courseId: number;
@@ -34,36 +37,62 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
   const [completedAssignments, setCompletedAssignments] = useState<Set<number>>(
     new Set()
   );
-  const [api, contextHolder] = notification.useNotification();
+  const [notificationApi, contextHolder] = notification.useNotification();
 
   const handleMarkAsDone = async (
     assignmentId: number,
-    e: React.MouseEvent
+    submissionType: CourseAssignmentSubmissionType,
+    file: File | null,
+    e: React.MouseEvent<Element, MouseEvent>
   ) => {
     e.stopPropagation();
     try {
-      await progressApi.markAsDone(assignmentId.toString());
-      setCompletedAssignments((prev) => new Set(prev).add(assignmentId));
+      if (submissionType !== CourseAssignmentSubmissionType.AutoComplete) {
+        if (!file) {
+          message.error("Please upload a file first");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+        await api.post(
+          `/file-storage/assignments/${assignmentId}/submit`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        await progressApi.markAsDone(assignmentId.toString());
+        setCompletedAssignments((prev) => new Set(prev).add(assignmentId));
 
-      // Calculate and update progress
-      const newCompletedCount = completedAssignments.size + 1;
-      const newProgress = +(
-        (newCompletedCount / assignments.length) *
-        100
-      ).toFixed(2);
-      console.log(newCompletedCount, assignments.length, newProgress);
+        // Calculate and update progress
+        const newCompletedCount = completedAssignments.size + 1;
+        const newProgress = +(
+          (newCompletedCount / assignments.length) *
+          100
+        ).toFixed(2);
+        console.log(newCompletedCount, assignments.length, newProgress);
 
-      updateProgress(newProgress);
+        updateProgress(newProgress);
+      }
 
-      api.success({
+      notificationApi.success({
         message: "Success",
-        description: "Assignment marked as completed",
+        description:
+          submissionType === CourseAssignmentSubmissionType.AutoComplete
+            ? "Assignment marked as completed"
+            : "Assignment sent for review",
         placement: "topRight",
       });
     } catch (error) {
-      api.error({
+      notificationApi.error({
         message: "Error",
-        description: "Failed to mark assignment as completed",
+        description:
+          submissionType === CourseAssignmentSubmissionType.AutoComplete
+            ? "Failed to mark assignment as completed"
+            : "Failed to send assignment for review",
         placement: "topRight",
       });
     }
@@ -130,15 +159,50 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                               />
                             </Tooltip>
                           ) : (
-                            <Button
-                              type="primary"
-                              size="small"
-                              onClick={(e) =>
-                                handleMarkAsDone(assignment.id, e)
-                              }
-                            >
-                              Mark as Done
-                            </Button>
+                            <>
+                              {assignment.submission_type !==
+                                CourseAssignmentSubmissionType.AutoComplete && (
+                                <Upload
+                                  beforeUpload={(file) => {
+                                    handleMarkAsDone(
+                                      assignment.id,
+                                      assignment.submission_type,
+                                      file,
+                                      {
+                                        stopPropagation: () => {},
+                                      } as React.MouseEvent<Element, MouseEvent>
+                                    );
+                                    return false;
+                                  }}
+                                  maxCount={1}
+                                  showUploadList={false}
+                                >
+                                  <Button
+                                    size="small"
+                                    icon={<UploadOutlined />}
+                                  >
+                                    Upload & Submit
+                                  </Button>
+                                </Upload>
+                              )}
+                              {assignment.submission_type ===
+                                CourseAssignmentSubmissionType.AutoComplete && (
+                                <Button
+                                  type="primary"
+                                  size="small"
+                                  onClick={(e) =>
+                                    handleMarkAsDone(
+                                      assignment.id,
+                                      assignment.submission_type,
+                                      null,
+                                      e
+                                    )
+                                  }
+                                >
+                                  Mark as Done
+                                </Button>
+                              )}
+                            </>
                           )}
                         </>
                       ) : (

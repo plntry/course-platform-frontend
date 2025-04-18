@@ -2,7 +2,9 @@ import { Button, Divider, Flex, Input, theme } from "antd";
 import TitleComp from "../Title";
 import Comment from "../Comment";
 
-const CommentsList: React.FC = () => {
+const CommentsList: React.FC<{ shouldShowAddComment?: boolean }> = ({
+  shouldShowAddComment = true,
+}) => {
   const { token: themeToken } = theme.useToken();
 
   return (
@@ -25,15 +27,19 @@ const CommentsList: React.FC = () => {
       >
         Comments
       </TitleComp>
-      <Input.TextArea
-        rows={4}
-        style={{ width: "100%" }}
-        placeholder="Leave your comment..."
-      />
-      <Button type="primary" style={{ alignSelf: "flex-end" }}>
-        Add Comment
-      </Button>
-      <Divider />
+      {shouldShowAddComment && (
+        <>
+          <Input.TextArea
+            rows={4}
+            style={{ width: "100%" }}
+            placeholder="Leave your comment..."
+          />
+          <Button type="primary" style={{ alignSelf: "flex-end" }}>
+            Add Comment
+          </Button>
+          <Divider />
+        </>
+      )}
       <Flex vertical gap={16} style={{ width: "100%" }}>
         <Comment author="John Doe" content="This is a comment" />
         <Comment

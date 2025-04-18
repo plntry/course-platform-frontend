@@ -9,6 +9,8 @@ import { GUEST_ROLE, UserRoles } from "../models/User";
 import { PATHS } from "../routes/paths";
 import { handleAxiosRequest } from "../utils/axiosUtils";
 import { getUserAvailableCourseActionsByPage } from "../utils/courseUtils";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { ReactNode } from "react";
 
 export const courseActions: CourseActions = {
   more: {
@@ -47,6 +49,7 @@ export const courseActions: CourseActions = {
   },
   edit: {
     title: "Edit",
+    icon: EditOutlined,
     link: `${PATHS.COURSE.link}/${PATHS.EDIT_COURSE.link}`,
     dynamicParam: {
       stringToReplace: ":courseId",
@@ -63,6 +66,7 @@ export const courseActions: CourseActions = {
   },
   delete: {
     title: "Delete",
+    icon: DeleteOutlined,
     link: "",
     dynamicParam: {
       stringToReplace: ":courseId",
@@ -77,7 +81,7 @@ export const courseActions: CourseActions = {
       type: "dashed",
     },
   },
-  sections: {
+  assignments: {
     title: "Assignments",
     link: PATHS.COURSE_SECTIONS.link,
     dynamicParam: {
@@ -111,13 +115,13 @@ export const courseActions: CourseActions = {
 export const userAvailableCourseActions: UserAvailableCourseActions = {
   [UserRoles.STUDENT]: [
     courseActions.enroll,
-    courseActions.sections,
+    courseActions.assignments,
     courseActions.more,
   ],
   [UserRoles.TEACHER]: [
     courseActions.edit,
     courseActions.delete,
-    courseActions.sections,
+    courseActions.assignments,
     courseActions.more,
   ],
   [GUEST_ROLE]: [courseActions.more],

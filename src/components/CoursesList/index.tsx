@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router";
 import {
   Table,
@@ -29,8 +29,10 @@ const CoursesList: React.FC<{
 }> = ({ courses, mode = CoursePage.AllCourses }) => {
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
   const isTeacher = role === UserRoles.TEACHER;
-  const availableActions: CourseActionConfig[] =
-    userAvailableCourseActionsByPage[mode][role];
+  const availableActions = useMemo(
+    () => userAvailableCourseActionsByPage[mode][role],
+    [mode, role]
+  );
 
   const screens = useBreakpoint();
   const isSmallScreen = !screens.md && (screens.xs || screens.sm);
@@ -48,78 +50,83 @@ const CoursesList: React.FC<{
 
   const [api, contextHolder] = notification.useNotification();
 
-  const filteredCourses = courses
-    .filter((course) => !deletedCourseIds.includes(course.id))
-    .filter(
-      (item) =>
-        item.title.toLowerCase().includes(searchText.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchText.toLowerCase())
-    );
+  const filteredCourses = useMemo(
+    () =>
+      courses
+        .filter((course) => !deletedCourseIds.includes(course.id))
+        .filter(
+          (item) =>
+            item.title.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.category.toLowerCase().includes(searchText.toLowerCase())
+        ),
+    [courses, deletedCourseIds, searchText]
+  );
 
   const handleCourseDelete = (courseId: number) => {
     setDeletedCourseIds((prev) => [...prev, courseId]);
   };
 
-  const columns: TableColumnsType<GetCourse> = [
-    {
-      title: "Name",
-      dataIndex: "title",
-      showSorterTooltip: { target: "full-header" },
-      filters: filteredCourses.map((course: GetCourse) => {
-        return {
+  const columns = useMemo<TableColumnsType<GetCourse>>(
+    () => [
+      {
+        title: "Name",
+        dataIndex: "title",
+        showSorterTooltip: { target: "full-header" },
+        filters: filteredCourses.map((course: GetCourse) => ({
           text: course.title,
           value: course.id,
-        };
-      }),
-      onFilter: (value, record) => record.id === value,
-      sorter: (a, b) => a.title.length - b.title.length,
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-      responsive: ["sm"],
-      showSorterTooltip: { target: "full-header" },
-      filters: Array.from(
-        new Set(filteredCourses.map((course: GetCourse) => course.category))
-      ).map((category) => ({
-        text: category,
-        value: category,
-      })),
-      onFilter: (value, record) => record.category === value,
-      sorter: (a, b) => a.title.length - b.title.length,
-      render: (category: string) => (
-        <Tag color={getCategoryColor(category)}>{category}</Tag>
-      ),
-    },
-    {
-      title: "Rating",
-      dataIndex: "rating",
-      responsive: ["md"],
-      showSorterTooltip: { target: "full-header" },
-      sorter: (a, b) => a.rating - b.rating,
-      render: (rating: number, record: GetCourse) => (
-        <Flex align="center" justify="center">
-          <Rate
-            disabled
-            allowHalf
-            value={coursesRatings[record.id] || rating}
+        })),
+        onFilter: (value, record) => record.id === value,
+        sorter: (a, b) => a.title.length - b.title.length,
+      },
+      {
+        title: "Category",
+        dataIndex: "category",
+        responsive: ["sm"],
+        showSorterTooltip: { target: "full-header" },
+        filters: Array.from(
+          new Set(filteredCourses.map((course: GetCourse) => course.category))
+        ).map((category) => ({
+          text: category,
+          value: category,
+        })),
+        onFilter: (value, record) => record.category === value,
+        sorter: (a, b) => a.title.length - b.title.length,
+        render: (category: string) => (
+          <Tag color={getCategoryColor(category)}>{category}</Tag>
+        ),
+      },
+      {
+        title: "Rating",
+        dataIndex: "rating",
+        responsive: ["md"],
+        showSorterTooltip: { target: "full-header" },
+        sorter: (a, b) => a.rating - b.rating,
+        render: (rating: number, record: GetCourse) => (
+          <Flex align="center" justify="center">
+            <Rate
+              disabled
+              allowHalf
+              value={coursesRatings[record.id] || rating}
+            />
+          </Flex>
+        ),
+      },
+      {
+        title: "",
+        dataIndex: "actions",
+        render: (_, record: GetCourse) => (
+          <CourseActionsComp
+            course={record}
+            actions={availableActions}
+            mode={mode}
+            onDelete={() => handleCourseDelete(record.id)}
           />
-        </Flex>
-      ),
-    },
-    {
-      title: "",
-      dataIndex: "actions",
-      render: (_, record: GetCourse) => (
-        <CourseActionsComp
-          course={record}
-          actions={availableActions}
-          mode={mode}
-          onDelete={() => handleCourseDelete(record.id)}
-        />
-      ),
-    },
-  ];
+        ),
+      },
+    ],
+    [filteredCourses, coursesRatings, availableActions, mode]
+  );
 
   return (
     <Flex vertical align="center" gap={20}>

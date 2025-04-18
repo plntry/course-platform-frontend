@@ -35,6 +35,7 @@ export const useWebSocket = (
   onMessage: (message: WebSocketMessage) => void
 ): WebSocketHook => {
   const ws = useRef<WebSocket | null>(null);
+  const pending = useRef<WebSocketMessage[]>([]);
   const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
   const isConnected = useRef<boolean>(false);
 
@@ -52,6 +53,9 @@ export const useWebSocket = (
       ws.current.onopen = () => {
         console.log("WebSocket Connected");
         isConnected.current = true;
+        // Flush any messages queued before open
+        pending.current.forEach((msg) => ws.current!.send(JSON.stringify(msg)));
+        pending.current = [];
       };
 
       ws.current.onmessage = (event) => {
@@ -88,9 +92,7 @@ export const useWebSocket = (
       if (reconnectTimeout.current) {
         clearTimeout(reconnectTimeout.current);
       }
-      if (ws.current) {
-        ws.current.close(1000, "Component unmounting");
-      }
+      ws.current?.close(1000, "Component unmounting");
     };
   }, [connect]);
 
@@ -102,37 +104,28 @@ export const useWebSocket = (
         console.error("Error sending WebSocket message:", error);
       }
     } else {
-      console.error("WebSocket is not connected");
+      // Queue until connection opens
+      pending.current.push(message);
     }
   }, []);
 
   const joinRoom = useCallback(
     (roomId: string) => {
-      sendMessage({
-        command: "join_room",
-        room_id: roomId,
-      });
+      sendMessage({ command: "join_room", room_id: roomId });
     },
     [sendMessage]
   );
 
   const leaveRoom = useCallback(
     (roomId: string) => {
-      sendMessage({
-        command: "leave_room",
-        room_id: roomId,
-      });
+      sendMessage({ command: "leave_room", room_id: roomId });
     },
     [sendMessage]
   );
 
   const updateRating = useCallback(
     (roomId: string, rating: number) => {
-      sendMessage({
-        command: "update_rating",
-        room_id: roomId,
-        rating,
-      });
+      sendMessage({ command: "update_rating", room_id: roomId, rating });
     },
     [sendMessage]
   );

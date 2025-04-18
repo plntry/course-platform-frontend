@@ -1,4 +1,4 @@
-import { Col, notification as antdNotification, Row } from "antd";
+import { Col, notification as antdNotification, Row, Flex } from "antd";
 import { useState } from "react";
 import { GetCourse, CourseActionConfig } from "../../models/Course";
 import CourseActionRenderer from "../CourseActionRenderer";
@@ -26,7 +26,7 @@ const CourseActionsComp: React.FC<{
       >
         {actions.map((action: CourseActionConfig) => (
           <Col
-            key={action.link}
+            key={`${action.title}-${course.id}`}
             style={{ flex: "1 1 auto", maxWidth: "200px" }}
           >
             {

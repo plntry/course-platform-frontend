@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { Button } from "antd";
-import { Link } from "react-router";
+import { Button, Dropdown, MenuProps } from "antd";
+import { Link, useNavigate } from "react-router";
 import { CourseActionConfig, GetCourse } from "../../models/Course";
 import DeleteModal from "../DeleteModal";
 import { coursesApi } from "../../api/courses";
 import { NotificationInstance } from "antd/es/notification/interface";
+import { useAuthStore } from "../../store/useAuthStore";
+import { notification } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 interface ActionButtonProps {
   action: CourseActionConfig;
@@ -47,7 +50,7 @@ const CourseActionRenderer: React.FC<ActionButtonProps> = ({
           block
           onClick={() => setShowDeleteModal(true)}
         >
-          {action.title}
+          {action.icon ? React.createElement(action.icon) : action.title}
         </Button>
         {showDeleteModal && (
           <DeleteModal
@@ -77,14 +80,14 @@ const CourseActionRenderer: React.FC<ActionButtonProps> = ({
           })().catch((err) => console.error(err));
         }}
       >
-        {action.title}
+        {action.icon ? React.createElement(action.icon) : action.title}
       </Button>
     );
   } else {
     return (
       <Link to={dynamicLink}>
         <Button {...action.buttonProps} disabled={isDisabled} block>
-          {action.title}
+          {action.icon ? React.createElement(action.icon) : action.title}
         </Button>
       </Link>
     );
