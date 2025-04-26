@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import dayjs from "dayjs";
-import { Modal, Form, Input, DatePicker, Upload, Button } from "antd";
+import { Modal, Form, Input, DatePicker, Upload, Button, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd/es/upload/interface";
 import { useAssignmentsStore } from "../../store/useAssignmentsStore";
 import { useLoaderData } from "react-router";
+import { CourseAssignmentSubmissionType } from "../../models/Course";
+
+const { Option } = Select;
 
 const AssignmentModal: React.FC = () => {
   const { courseId } = useLoaderData();
@@ -30,7 +33,16 @@ const AssignmentModal: React.FC = () => {
         title: currentEditingAssignment.title,
         description: currentEditingAssignment.description,
         due_date: dayjs(currentEditingAssignment.due_date),
+        submission_type: currentEditingAssignment.submission_type,
         teacher_comments: currentEditingAssignment.teacher_comments,
+        file: currentEditingAssignment.files?.map((file) => ({
+          uid: file.key,
+          name: file.filename,
+          status: "done",
+          url: file.key,
+          size: file.size,
+          lastModified: new Date(file.last_modified).getTime(),
+        })),
       });
       prevAssignmentId.current = currentEditingAssignment.id;
     } else if (!currentEditingAssignment && prevAssignmentId.current !== null) {
@@ -48,13 +60,26 @@ const AssignmentModal: React.FC = () => {
       formData.append("description", values.description);
       formData.append("due_date", values.due_date.toISOString());
       formData.append("teacher_comments", values.teacher_comments || "");
-      formData.append("section_id", String(currentSectionId));
-      formData.append("order", "0");
+      formData.append(
+        "section_id",
+        String(currentSectionId || currentEditingAssignment?.section_id)
+      );
+      formData.append("submission_type", values.submission_type);
+      formData.append(
+        "order",
+        currentEditingAssignment?.order?.toString() || "0"
+      );
 
       // Handle file upload
       const fileList = values.file as UploadFile[];
-      if (fileList?.[0]?.originFileObj) {
-        formData.append("file", fileList[0].originFileObj);
+      if (fileList?.length > 0) {
+        if (fileList[0].originFileObj) {
+          formData.append("file", fileList[0].originFileObj);
+        } else if (fileList[0].url) {
+          formData.append("file_key", fileList[0].url);
+        }
+      } else {
+        formData.append("delete_files", "true");
       }
 
       if (currentEditingAssignment) {
@@ -105,6 +130,20 @@ const AssignmentModal: React.FC = () => {
           rules={[{ required: true, message: "Please select the due date" }]}
         >
           <DatePicker showTime />
+        </Form.Item>
+        <Form.Item
+          label="Submission Type (for students)"
+          name="submission_type"
+          rules={[{ required: true, message: "Please select submission type" }]}
+        >
+          <Select>
+            <Option value={CourseAssignmentSubmissionType.AutoComplete}>
+              Auto Complete
+            </Option>
+            <Option value={CourseAssignmentSubmissionType.WithFile}>
+              File Submission
+            </Option>
+          </Select>
         </Form.Item>
         <Form.Item label="Teacher Comments" name="teacher_comments">
           <Input.TextArea />

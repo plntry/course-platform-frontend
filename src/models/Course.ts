@@ -1,5 +1,6 @@
 import { ButtonProps } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
+import { ReactNode } from "react";
 
 export interface GetCourse {
   id: number;
@@ -49,6 +50,11 @@ interface AssignmentFile {
   filename: string;
 }
 
+export enum CourseAssignmentSubmissionType {
+  AutoComplete = "autoComplete",
+  WithFile = "fileSubmission",
+}
+
 export interface CourseAssignment {
   id: number;
   title: string;
@@ -58,7 +64,32 @@ export interface CourseAssignment {
   order: number;
   course_id: number;
   section_id: number;
+  submission_type: CourseAssignmentSubmissionType;
+  is_completed: boolean;
+  status: "not_started" | "graded" | "submitted";
+  score?: number;
+  feedback?: string;
   files: AssignmentFile[];
+}
+
+export interface PostCourseReview {
+  text: string;
+}
+
+export interface CourseReview {
+  id: number;
+  text: string;
+  user_id: number;
+  course_id: number;
+  created_at: string;
+  updated_at: string;
+  user_first_name: string;
+  user_last_name: string;
+}
+
+export interface PostAssignmentGrade {
+  score: number;
+  feedback: string;
 }
 
 export enum CoursePage {
@@ -68,7 +99,8 @@ export enum CoursePage {
 }
 
 export interface CourseActionConfig {
-  title: string;
+  title: string | ReactNode;
+  icon?: React.ComponentType;
   link: string;
   buttonProps?: ButtonProps;
   visible: Record<CoursePage, boolean>;

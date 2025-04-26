@@ -1,20 +1,29 @@
 import api from ".";
-import { PostCourse } from "../models/Course";
-
+import { PostAssignmentGrade } from "../models/Course";
 const PROGRESS_BASE_URL = "/progress";
 
-export const coursesApi = {
-  getByCourse: async () => await api.get(PROGRESS_BASE_URL),
+export const progressApi = {
+  getByCourse: async (courseId: string, studentId: string) =>
+    await api.get(
+      `${PROGRESS_BASE_URL}/courses/${courseId}/student/${studentId}`
+    ),
   markAsDone: async (assignmentId: string) =>
     await api.post(
       `${PROGRESS_BASE_URL}/mark-assignment-complete/${assignmentId}`
     ),
-  // getById: async (courseId: string) =>
-  //   api.get(`${PROGRESS_BASE_URL}/${courseId}`),
-  // create: async (body: PostCourse) =>
-  //   await api.post(`${PROGRESS_BASE_URL}/create_course`, body),
-  // update: async (courseId: string, body: PostCourse) =>
-  //   await api.put(`${PROGRESS_BASE_URL}/${courseId}`, body),
-  // delete: async (courseId: string) =>
-  //   await api.delete(`${PROGRESS_BASE_URL}/${courseId}`),
+  markAsDoneWithFile: async (assignmentId: string, file: FormData) =>
+    await api.post(`/file-storage/assignments/${assignmentId}/submit`, file, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  gradeAssignment: async (
+    assignmentId: string,
+    studentId: string,
+    body: PostAssignmentGrade
+  ) =>
+    await api.post(
+      `${PROGRESS_BASE_URL}/assignments/${assignmentId}/student/${studentId}/grade`,
+      body
+    ),
 };

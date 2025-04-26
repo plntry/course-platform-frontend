@@ -8,6 +8,9 @@ import { GetCourse } from "../../models/Course";
 import { useLoaderData } from "react-router";
 import TitleComp from "../../components/Title";
 
+// Cache for the loader data
+let cachedCourses: GetCourse[] | null = null;
+
 const StudentsPage: React.FC = () => {
   const teacherCourses = useLoaderData();
 
@@ -40,16 +43,21 @@ const StudentsPage: React.FC = () => {
 export default StudentsPage;
 
 export async function loader() {
+  if (cachedCourses) {
+    return cachedCourses;
+  }
+
   const { checkAuth } = useAuthStore.getState();
   await checkAuth();
 
   const response = await studentApi.getTeacherCourses();
 
   if (response.status === 200) {
-    return response.data.map((el: GetCourse) => ({
+    cachedCourses = response.data.map((el: GetCourse) => ({
       ...el,
       key: el.id,
     }));
+    return cachedCourses;
   }
 
   return [];

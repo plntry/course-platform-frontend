@@ -4,7 +4,7 @@ import { TitleProps } from "antd/es/typography/Title";
 const TitleComp: React.FC<{
   children: React.ReactNode;
   props?: TitleProps;
-}> = ({ children, ...props }) => {
+}> = ({ children, props }) => {
   const { token: themeToken } = theme.useToken();
 
   return (

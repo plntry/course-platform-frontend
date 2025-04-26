@@ -1,16 +1,14 @@
 import api from ".";
 
-const FILES_BASE_URL = "/files";
+const FILES_BASE_URL = "/file-storage";
 
 export const assignmentFilesApi = {
-  getAll: async (assignmentId: string) =>
-    await api.get(`${FILES_BASE_URL}/assignments/${assignmentId}/task`),
+  getSubmissionsByCourse: async (courseId: string, studentId: string) =>
+    await api.get(
+      `${FILES_BASE_URL}/course/${courseId}/submissions?student_id=${studentId}`
+    ),
   download: async (fileKey: string) =>
     await api.get(`${FILES_BASE_URL}/download/${fileKey}`),
-  create: async (assignmentId: string, file: string) =>
-    await api.post(`${FILES_BASE_URL}/assignments/${assignmentId}/upload`, {
-      file,
-    }),
   delete: async (fileKey: string) =>
     await api.delete(`${FILES_BASE_URL}/${fileKey}`),
 };

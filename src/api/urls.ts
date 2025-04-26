@@ -1,9 +1,9 @@
 export const urls = {
   auth: {
     register: {
-      student: "",
+      student: "/users",
       teacher: "/register/teacher",
-      admin: "/create/admin",
+      admin: "/users/admin",
     },
     login: "/token",
     logout: "/logout",

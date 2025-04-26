@@ -20,22 +20,21 @@ const MyCourses: React.FC = () => {
 export default MyCourses;
 
 export async function loader() {
-  const { checkAuth } = useAuthStore.getState();
-  await checkAuth();
-
   const { user } = useAuthStore.getState();
+  if (!user) return [];
 
   const response = await studentApi[
-    user?.role === UserRoles.TEACHER ? "getTeacherCourses" : "getStudentCourses"
+    user.role === UserRoles.TEACHER ? "getTeacherCourses" : "getStudentCourses"
   ]();
 
   if (response.status === 200) {
-    return response.data
+    const courses = response.data
       .map((el: GetCourse) => ({
         ...el,
         key: el.id,
       }))
       .sort((a: GetCourse, b: GetCourse) => b.rating - a.rating);
+    return courses;
   }
 
   return [];

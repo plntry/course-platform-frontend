@@ -2,6 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { authApi } from "./auth";
 import { ROLE_PATHS } from "../routes/paths";
 import { GUEST_ROLE } from "../models/User";
+import { urls } from "./urls";
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -43,8 +44,21 @@ api.interceptors.response.use(
       : pathname;
     const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
 
-    // Don't retry for guest paths
-    if (guestAccessiblePaths.has(currentPath)) {
+    // Get all auth paths including nested ones
+    const authPaths = new Set(
+      [
+        urls.auth.login,
+        urls.auth.logout,
+        urls.auth.requestPasswordReset,
+        urls.auth.resetPassword,
+        urls.auth.getToken,
+        urls.auth.refreshToken,
+        ...Object.values(urls.auth.register).flat(),
+      ].map((path) => `auth${path}`)
+    );
+
+    // Don't retry for guest paths or auth endpoints
+    if (guestAccessiblePaths.has(currentPath) || authPaths.has(currentPath)) {
       return Promise.reject(error);
     }
 

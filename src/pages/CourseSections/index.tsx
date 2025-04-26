@@ -5,11 +5,12 @@ import {
   Grid,
   Input,
   Modal,
+  Progress,
   Tabs,
   TabsProps,
   notification as antdNotification,
 } from "antd";
-import { Params, useLoaderData } from "react-router";
+import { Params, useLoaderData, useRouteLoaderData } from "react-router";
 import { CourseSection, CreateUpdateCourseSection } from "../../models/Course";
 import { useAuthStore } from "../../store/useAuthStore";
 import { GUEST_ROLE, UserRoles } from "../../models/User";
@@ -17,22 +18,30 @@ import { courseSectionsApi } from "../../api/courseSections";
 import AssignmentsList from "../../components/AssignmentsList";
 import TitleComp from "../../components/Title";
 import classes from "./CourseSections.module.css";
+import { progressApi } from "../../api/progress";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 type Section = NonNullable<TabsProps["items"]>[number];
 
 const CourseSections: React.FC = () => {
   // Grid and UI settings
-  const { md } = Grid.useBreakpoint();
+  const { xs, md } = Grid.useBreakpoint();
+
   const tabPosition = md ? "left" : "top";
   const tabSize = md ? "middle" : "small";
+
+  const { course } = useRouteLoaderData("courseDetails");
 
   // Notifications
   const [notification, contextHolder] = antdNotification.useNotification();
 
   // Auth and data
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-  const { data: retrievedSections, courseId } = useLoaderData();
+  const {
+    data: retrievedSections,
+    courseId,
+    progress: initialProgress,
+  } = useLoaderData();
 
   // State management
   const [sections, setSections] =
@@ -50,6 +59,9 @@ const CourseSections: React.FC = () => {
   // Modal state
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [newSectionTitle, setNewSectionTitle] = useState("");
+
+  // Progress state
+  const [progress, setProgress] = useState(initialProgress);
 
   // Section management functions
   const handleSectionRemoval = (targetKey: TargetKey) => {
@@ -123,6 +135,11 @@ const CourseSections: React.FC = () => {
     }
   };
 
+  // Add this function to update progress
+  const updateProgress = (newProgress: number) => {
+    setProgress(newProgress);
+  };
+
   // Render functions
   const renderSectionLabel = (item: Section) => {
     if (role !== UserRoles.TEACHER) {
@@ -185,6 +202,7 @@ const CourseSections: React.FC = () => {
                 courseId={courseId}
                 sectionId={newSection.id}
                 isActive={activeKey === newSection.id}
+                updateProgress={updateProgress}
               />
             ),
           },
@@ -219,6 +237,7 @@ const CourseSections: React.FC = () => {
               courseId={Number(courseId)}
               sectionId={sectionId}
               isActive={activeKey === section.key}
+              updateProgress={updateProgress}
             />
           ),
         };
@@ -236,7 +255,17 @@ const CourseSections: React.FC = () => {
   return (
     <Flex vertical align="center" gap={20}>
       {contextHolder}
-      <TitleComp>Assignments</TitleComp>
+      <Flex justify="center" align="center" gap={!xs ? 20 : 0} wrap="wrap">
+        <TitleComp>"{course.title}" Course: Assignments</TitleComp>
+        {role === UserRoles.STUDENT && (
+          <Progress
+            type="circle"
+            percent={progress}
+            size="small"
+            style={{ marginTop: "10px" }}
+          />
+        )}
+      </Flex>
 
       {role === UserRoles.TEACHER && (
         <Button
@@ -288,6 +317,8 @@ export default CourseSections;
 
 export const loader = async ({ params }: { params: Params }) => {
   const { courseId } = params;
+  const user = useAuthStore.getState().user;
+  let progress = 0;
 
   try {
     const response = await courseSectionsApi.getAllByCourse(courseId || "");
@@ -299,9 +330,28 @@ export const loader = async ({ params }: { params: Params }) => {
           }))
         : [];
 
-    return { courseId, data };
+    // Fetch progress if user is a student
+    if (user?.role === UserRoles.STUDENT) {
+      const progressResponse = await progressApi.getByCourse(
+        courseId || "",
+        user.id.toString()
+      );
+
+      console.log(progressResponse.data);
+
+      progress =
+        progressResponse.status === 200
+          ? +(
+              (progressResponse.data.completed_assignments /
+                progressResponse.data.total_assignments) *
+              100
+            ).toFixed(2)
+          : 0;
+    }
+
+    return { courseId, data, progress };
   } catch (error) {
     console.error("Failed to fetch course sections:", error);
-    return { courseId, data: [] };
+    return { courseId, data: [], progress };
   }
 };
