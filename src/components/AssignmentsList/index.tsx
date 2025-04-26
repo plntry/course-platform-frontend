@@ -83,7 +83,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
         const newProgress = +(
           (completedCount / assignments.length) *
           100
-        ).toFixed(2);
+        ).toFixed(1);
 
         updateProgress(newProgress);
       }

@@ -137,7 +137,7 @@ const CourseSections: React.FC = () => {
 
   // Add this function to update progress
   const updateProgress = (newProgress: number) => {
-    setProgress(newProgress);
+    setProgress(newProgress.toFixed(1));
   };
 
   // Render functions
@@ -261,7 +261,7 @@ const CourseSections: React.FC = () => {
           <Progress
             type="circle"
             percent={progress}
-            size="small"
+            size={60}
             style={{ marginTop: "10px" }}
           />
         )}
@@ -337,15 +337,13 @@ export const loader = async ({ params }: { params: Params }) => {
         user.id.toString()
       );
 
-      console.log(progressResponse.data);
-
       progress =
         progressResponse.status === 200
           ? +(
               (progressResponse.data.completed_assignments /
                 progressResponse.data.total_assignments) *
               100
-            ).toFixed(2)
+            ).toFixed(1)
           : 0;
     }
 
