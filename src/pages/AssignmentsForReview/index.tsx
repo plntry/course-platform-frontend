@@ -3,12 +3,13 @@ import { assignmentFilesApi } from "../../api/files";
 import { studentApi } from "../../api/students";
 import { coursesApi } from "../../api/courses";
 import TitleComp from "../../components/Title";
-import { Divider, Flex, theme, Typography } from "antd";
-import { useMemo } from "react";
+import { Divider, Flex, theme, Typography, message } from "antd";
+import { useMemo, useState } from "react";
 import { capitalizeFirstLetter } from "../../utils/stringUtils";
 import GoBackButton from "../../components/GoBackButton";
 import { handleFileDownload } from "../../utils/fileUtils";
 import GradeAssignmentForm from "../../components/GradeAssignmentForm";
+import { progressApi } from "../../api/progress";
 
 const AssignmentsForReview: React.FC = () => {
   const { token: themeToken } = theme.useToken();
@@ -17,6 +18,9 @@ const AssignmentsForReview: React.FC = () => {
     course: any;
     submissions: any[];
   };
+  const [gradedSubmissions, setGradedSubmissions] = useState<Set<string>>(
+    new Set()
+  );
 
   const mainData = useMemo(() => {
     return {
@@ -25,10 +29,27 @@ const AssignmentsForReview: React.FC = () => {
     };
   }, [course, student]);
 
-  const handleGradeSubmit = (values: { grade: string; feedback: string }) => {
-    console.log("Grade submitted:", values);
-    // TODO: Implement grade submission logic
+  const handleGradeSubmit = async (
+    values: { grade: string; feedback: string },
+    assignmentId: string
+  ) => {
+    try {
+      await progressApi.gradeAssignment(assignmentId, student.id, {
+        score: +values.grade,
+        feedback: values.feedback,
+      });
+      setGradedSubmissions((prev) => new Set(prev).add(assignmentId));
+      message.success("Grade submitted successfully");
+    } catch (error) {
+      message.error("Failed to submit grade");
+    }
   };
+
+  const ungradedSubmissions = useMemo(() => {
+    return submissions.filter(
+      (submission) => !gradedSubmissions.has(submission.assignment_id)
+    );
+  }, [submissions, gradedSubmissions]);
 
   return (
     <>
@@ -46,21 +67,29 @@ const AssignmentsForReview: React.FC = () => {
       </Flex>
       <Divider />
       <Flex vertical gap={20}>
-        {submissions.map((submission) => (
-          <Flex key={submission.file_key} vertical gap={10}>
-            <Flex justify="space-between" align="center">
-              <Typography.Link
-                onClick={() =>
-                  handleFileDownload(submission.file_key, submission.filename)
+        {ungradedSubmissions.length > 0 ? (
+          ungradedSubmissions.map((submission) => (
+            <Flex key={submission.file_key} vertical gap={10}>
+              <Flex justify="space-between" align="center">
+                <Typography.Link
+                  onClick={() =>
+                    handleFileDownload(submission.file_key, submission.filename)
+                  }
+                >
+                  {submission.filename} (
+                  {(submission.file_size / 1024).toFixed(2)} KB)
+                </Typography.Link>
+              </Flex>
+              <GradeAssignmentForm
+                onGradeSubmit={(values) =>
+                  handleGradeSubmit(values, submission.assignment_id)
                 }
-              >
-                {submission.filename} (
-                {(submission.file_size / 1024).toFixed(2)} KB)
-              </Typography.Link>
+              />
             </Flex>
-            <GradeAssignmentForm onGradeSubmit={handleGradeSubmit} />
-          </Flex>
-        ))}
+          ))
+        ) : (
+          <Typography.Text>No submissions to grade</Typography.Text>
+        )}
       </Flex>
     </>
   );

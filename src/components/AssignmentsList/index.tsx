@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Collapse, Button, Flex, Space, Tooltip, Upload, message } from "antd";
 import {
   CheckCircleOutlined,
-  ClockCircleOutlined,
   EyeInvisibleOutlined,
+  FileSearchOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 import { useAssignmentsStore } from "../../store/useAssignmentsStore";
@@ -63,17 +63,27 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
             },
           }
         );
+        // Update the assignment status in the store
+        useAssignmentsStore.setState((state) => ({
+          assignments: state.assignments.map((a) =>
+            a.id === assignmentId ? { ...a, status: "submitted" } : a
+          ),
+        }));
       } else {
         await progressApi.markAsDone(assignmentId.toString());
         setCompletedAssignments((prev) => new Set(prev).add(assignmentId));
 
         // Calculate and update progress
-        const newCompletedCount = completedAssignments.size + 1;
+        const completedCount = assignments.filter(
+          (a) =>
+            a.is_completed ||
+            completedAssignments.has(a.id) ||
+            a.id === assignmentId
+        ).length;
         const newProgress = +(
-          (newCompletedCount / assignments.length) *
+          (completedCount / assignments.length) *
           100
         ).toFixed(2);
-        console.log(newCompletedCount, assignments.length, newProgress);
 
         updateProgress(newProgress);
       }
@@ -139,13 +149,18 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
           items={assignments.map((assignment) => {
             const today = dayjs();
             const dueDate = dayjs(assignment.due_date);
+
             const canViewDetails =
               role === UserRoles.TEACHER || today.isBefore(dueDate);
-            const isCompleted = completedAssignments.has(assignment.id);
+            const isCompleted =
+              assignment.is_completed ||
+              completedAssignments.has(assignment.id);
 
             return {
               key: assignment.id.toString(),
-              label: assignment.title,
+              label: (
+                <div style={{ textAlign: "left" }}>{assignment.title}</div>
+              ),
               extra: (
                 <Space>
                   {role === UserRoles.STUDENT && (
@@ -153,38 +168,54 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                       {canViewDetails ? (
                         <>
                           {isCompleted ? (
-                            <Tooltip title="This assignment is completed">
-                              <CheckCircleOutlined
-                                style={{ color: "#52c41a" }}
-                              />
-                            </Tooltip>
+                            <>
+                              {assignment.score && `${assignment.score}/12`}
+                              <Tooltip title="Completed">
+                                <CheckCircleOutlined
+                                  style={{ color: "#52c41a" }}
+                                />
+                              </Tooltip>
+                            </>
                           ) : (
                             <>
-                              {assignment.submission_type !==
-                                CourseAssignmentSubmissionType.AutoComplete && (
-                                <Upload
-                                  beforeUpload={(file) => {
-                                    handleMarkAsDone(
-                                      assignment.id,
-                                      assignment.submission_type,
-                                      file,
-                                      {
-                                        stopPropagation: () => {},
-                                      } as React.MouseEvent<Element, MouseEvent>
-                                    );
-                                    return false;
-                                  }}
-                                  maxCount={1}
-                                  showUploadList={false}
-                                >
-                                  <Button
-                                    size="small"
-                                    icon={<UploadOutlined />}
+                              {assignment.submission_type ===
+                                CourseAssignmentSubmissionType.WithFile &&
+                                assignment.status === "not_started" && (
+                                  <Upload
+                                    beforeUpload={(file) => {
+                                      handleMarkAsDone(
+                                        assignment.id,
+                                        assignment.submission_type,
+                                        file,
+                                        {
+                                          stopPropagation: () => {},
+                                        } as React.MouseEvent<
+                                          Element,
+                                          MouseEvent
+                                        >
+                                      );
+                                      return false;
+                                    }}
+                                    maxCount={1}
+                                    showUploadList={false}
                                   >
-                                    Upload & Submit
-                                  </Button>
-                                </Upload>
-                              )}
+                                    <Button
+                                      size="small"
+                                      icon={<UploadOutlined />}
+                                    >
+                                      Upload & Submit
+                                    </Button>
+                                  </Upload>
+                                )}
+                              {assignment.submission_type ===
+                                CourseAssignmentSubmissionType.WithFile &&
+                                assignment.status === "submitted" && (
+                                  <Tooltip title="On review">
+                                    <FileSearchOutlined
+                                      style={{ color: "#faad14" }}
+                                    />
+                                  </Tooltip>
+                                )}
                               {assignment.submission_type ===
                                 CourseAssignmentSubmissionType.AutoComplete && (
                                 <Button
@@ -199,7 +230,7 @@ const AssignmentsList: React.FC<AssignmentsListProps> = ({
                                     )
                                   }
                                 >
-                                  Mark as Done
+                                  Done
                                 </Button>
                               )}
                             </>

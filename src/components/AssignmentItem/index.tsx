@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Space, Typography, message } from "antd";
+import { Button, Flex, Space, Typography, message, theme } from "antd";
 import {
   CourseAssignment,
   CourseAssignmentSubmissionType,
@@ -12,10 +12,12 @@ import dayjs from "dayjs";
 import DeleteModal from "../DeleteModal";
 import { useLoaderData } from "react-router";
 import { handleFileDownload } from "../../utils/fileUtils";
+import TitleComp from "../Title";
 
 const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
   assignment,
 }) => {
+  const { token: themeToken } = theme.useToken();
   const { courseId } = useLoaderData();
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
 
@@ -67,6 +69,19 @@ const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
                   </Typography.Link>
                 ))}
               </Space>
+            </Typography.Paragraph>
+          )}
+          {assignment.feedback && (
+            <Typography.Paragraph>
+              <TitleComp
+                props={{
+                  level: 5,
+                  style: { color: themeToken.colorPrimaryActive, marginTop: 0 },
+                }}
+              >
+                Feedback by teacher:
+              </TitleComp>
+              <Typography.Paragraph>{assignment.feedback}</Typography.Paragraph>
             </Typography.Paragraph>
           )}
         </>

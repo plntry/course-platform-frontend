@@ -15,7 +15,12 @@ import {
   Modal,
 } from "antd";
 import { userAvailableCourseActionsByPage } from "../../constants/availableCourseActions";
-import { GetCourse, CourseActionConfig, CoursePage } from "../../models/Course";
+import {
+  GetCourse,
+  CourseActionConfig,
+  CoursePage,
+  CourseReview,
+} from "../../models/Course";
 import CourseActionsComp from "../../components/CourseActions";
 import { coursesApi } from "../../api/courses";
 import { PATHS } from "../../routes/paths";
@@ -25,6 +30,7 @@ import { getCategoryColor } from "../../utils/courseUtils";
 import { useWebSocket, WebSocketMessage } from "../../services/websocket";
 import { APIError } from "../../models/APIResponse";
 import Loader from "../../components/Loader";
+import { reviewsApi } from "../../api/reviews";
 
 const CommentsList = lazy(() => import("../../components/CommentsList"));
 
@@ -41,24 +47,37 @@ const CourseDetails: React.FC = () => {
   const availableActions: CourseActionConfig[] =
     userAvailableCourseActionsByPage[CoursePage.CourseDetails][role];
 
-  const course: GetCourse | undefined = useRouteLoaderData("courseDetails");
+  const { course, reviews } = useRouteLoaderData("courseDetails");
+
   if (!course) {
     navigate(PATHS.HOME.link);
     return null;
   }
 
   const [courseRating, setCourseRating] = useState<number>(course.rating);
+  const [reviewsList, setReviewsList] = useState<CourseReview[]>(reviews);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [tempRating, setTempRating] = useState<number>(0);
+  const [newReviewText, setNewReviewText] = useState("");
 
   const handleWebSocketMessage = useCallback(
     (message: WebSocketMessage) => {
-      console.log("WS received:", message);
+      // console.log("WS received:", message);
       if (
         message.event === "rating_updated" &&
         message.course_id === course.id
       ) {
         setCourseRating((prev) => message.new_rating ?? prev);
+      } else if (
+        message.event === "review_created" &&
+        message.course_id === course.id
+      ) {
+        // Fetch the new review and add it to the list
+        reviewsApi.getByCourseId(course.id.toString()).then((response) => {
+          if (response.status === 200) {
+            setReviewsList(response.data);
+          }
+        });
       }
     },
     [course.id]
@@ -105,6 +124,32 @@ const CourseDetails: React.FC = () => {
     setTempRating(courseRating);
     setIsRatingModalOpen(false);
     setTempRating(0);
+  };
+
+  const handleAddReview = async () => {
+    if (!newReviewText.trim()) return;
+
+    try {
+      await reviewsApi.create(course.id.toString(), { text: newReviewText });
+      setNewReviewText("");
+      // The WebSocket event will trigger a refresh of the reviews
+    } catch (error: any) {
+      const errorDetail = (error?.response?.data as APIError)?.detail;
+      const errorDescription =
+        Array.isArray(errorDetail) &&
+        typeof errorDetail[0] === "object" &&
+        "msg" in errorDetail[0]
+          ? errorDetail[0].msg
+          : typeof errorDetail === "string"
+          ? errorDetail
+          : "Failed to add review";
+      api.error({
+        message: "Error adding review",
+        description: errorDescription,
+        placement: "topRight",
+      });
+      console.error("Error adding review:", error);
+    }
   };
 
   return (
@@ -220,9 +265,13 @@ const CourseDetails: React.FC = () => {
 
         <Suspense fallback={<Loader />}>
           <CommentsList
+            comments={reviewsList}
             shouldShowAddComment={
               role === UserRoles.TEACHER || course.is_enrolled
             }
+            onAddComment={handleAddReview}
+            newCommentText={newReviewText}
+            onNewCommentTextChange={setNewReviewText}
           />
         </Suspense>
 
@@ -235,9 +284,16 @@ const CourseDetails: React.FC = () => {
 export default CourseDetails;
 
 export async function loader({ params }: { params: Params }) {
-  const response = await coursesApi.getById(params.courseId || "");
-  if (response.status === 200) {
-    return response.data;
+  let finalData: { course: GetCourse; reviews: CourseReview[] } | null = null;
+  const courseData = await coursesApi.getById(params.courseId || "");
+  if (courseData.status === 200) {
+    finalData = { course: courseData.data, reviews: [] };
   }
-  return null;
+
+  const reviewsData = await reviewsApi.getByCourseId(params.courseId || "");
+  if (reviewsData.status === 200 && finalData) {
+    finalData.reviews = reviewsData.data;
+  }
+
+  return finalData || null;
 }

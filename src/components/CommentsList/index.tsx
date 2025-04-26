@@ -1,9 +1,20 @@
-import { Button, Divider, Flex, Input, theme } from "antd";
+import { Button, Divider, Flex, Input, theme, Typography } from "antd";
 import TitleComp from "../Title";
 import Comment from "../Comment";
+import { CourseReview } from "../../models/Course";
 
-const CommentsList: React.FC<{ shouldShowAddComment?: boolean }> = ({
+const CommentsList: React.FC<{
+  comments: CourseReview[];
+  shouldShowAddComment?: boolean;
+  onAddComment?: () => void;
+  newCommentText?: string;
+  onNewCommentTextChange?: (text: string) => void;
+}> = ({
+  comments,
   shouldShowAddComment = true,
+  onAddComment,
+  newCommentText = "",
+  onNewCommentTextChange,
 }) => {
   const { token: themeToken } = theme.useToken();
 
@@ -33,19 +44,32 @@ const CommentsList: React.FC<{ shouldShowAddComment?: boolean }> = ({
             rows={4}
             style={{ width: "100%" }}
             placeholder="Leave your comment..."
+            value={newCommentText}
+            onChange={(e) => onNewCommentTextChange?.(e.target.value)}
           />
-          <Button type="primary" style={{ alignSelf: "flex-end" }}>
+          <Button
+            type="primary"
+            style={{ alignSelf: "flex-end" }}
+            onClick={onAddComment}
+          >
             Add Comment
           </Button>
           <Divider />
         </>
       )}
       <Flex vertical gap={16} style={{ width: "100%" }}>
-        <Comment author="John Doe" content="This is a comment" />
-        <Comment
-          author="Jane Doe"
-          content="This is another comment This is a comment This is a comment This is a comment This is a comment"
-        />
+        {comments.length ? (
+          comments.map((comment) => (
+            <Comment
+              key={comment.id}
+              author={`${comment.user_first_name} ${comment.user_last_name}`}
+              content={comment.text}
+              createdAt={comment.created_at}
+            />
+          ))
+        ) : (
+          <Typography.Text>No comments yet</Typography.Text>
+        )}
       </Flex>
     </Flex>
   );

@@ -2,18 +2,21 @@ import { useEffect, useRef, useCallback } from "react";
 
 // Define message types with additional fields from the backend broadcast
 export interface WebSocketMessage {
-  command?: "join_room" | "leave_room" | "update_rating";
+  command?: "join_room" | "leave_room" | "update_rating" | "create_review";
   event?:
     | "joined_room"
     | "left_room"
     | "rating_updated" // Event broadcast from backend after a rating update
     | "rating_confirmation"
+    | "review_created"
     | "error";
   room_id?: string;
   rating?: number;
   course_id?: number;
   new_rating?: number;
   ratings_count?: number;
+  review_id?: number;
+  user_id?: string;
   data?: {
     room_id?: string;
     rating?: number;
@@ -28,6 +31,7 @@ interface WebSocketHook {
   joinRoom: (roomId: string) => void;
   leaveRoom: (roomId: string) => void;
   updateRating: (roomId: string, rating: number) => void;
+  createReview: (roomId: string, courseId: number) => void;
   isConnected: boolean;
 }
 
@@ -51,7 +55,7 @@ export const useWebSocket = (
       ws.current = new WebSocket(wsUrl);
 
       ws.current.onopen = () => {
-        console.log("WebSocket Connected");
+        // console.log("WebSocket Connected");
         isConnected.current = true;
         // Flush any messages queued before open
         pending.current.forEach((msg) => ws.current!.send(JSON.stringify(msg)));
@@ -61,7 +65,7 @@ export const useWebSocket = (
       ws.current.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data) as WebSocketMessage;
-          console.log("Received WebSocket message:", message);
+          // console.log("Received WebSocket message:", message);
           onMessage(message);
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -74,7 +78,7 @@ export const useWebSocket = (
       };
 
       ws.current.onclose = (event) => {
-        console.log("WebSocket Disconnected", event.code);
+        // console.log("WebSocket Disconnected", event.code);
         isConnected.current = false;
         if (event.code !== 1000) {
           reconnectTimeout.current = setTimeout(connect, 5000);
@@ -130,11 +134,23 @@ export const useWebSocket = (
     [sendMessage]
   );
 
+  const createReview = useCallback(
+    (roomId: string, courseId: number) => {
+      sendMessage({
+        command: "create_review",
+        room_id: roomId,
+        course_id: courseId,
+      });
+    },
+    [sendMessage]
+  );
+
   return {
     sendMessage,
     joinRoom,
     leaveRoom,
     updateRating,
+    createReview,
     isConnected: isConnected.current,
   };
 };

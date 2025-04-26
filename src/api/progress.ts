@@ -1,5 +1,5 @@
 import api from ".";
-
+import { PostAssignmentGrade } from "../models/Course";
 const PROGRESS_BASE_URL = "/progress";
 
 export const progressApi = {
@@ -17,4 +17,13 @@ export const progressApi = {
         "Content-Type": "multipart/form-data",
       },
     }),
+  gradeAssignment: async (
+    assignmentId: string,
+    studentId: string,
+    body: PostAssignmentGrade
+  ) =>
+    await api.post(
+      `${PROGRESS_BASE_URL}/assignments/${assignmentId}/student/${studentId}/grade`,
+      body
+    ),
 };

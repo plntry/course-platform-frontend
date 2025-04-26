@@ -30,7 +30,7 @@ const CourseSections: React.FC = () => {
   const tabPosition = md ? "left" : "top";
   const tabSize = md ? "middle" : "small";
 
-  const course = useRouteLoaderData("courseDetails");
+  const { course } = useRouteLoaderData("courseDetails");
 
   // Notifications
   const [notification, contextHolder] = antdNotification.useNotification();
@@ -336,6 +336,8 @@ export const loader = async ({ params }: { params: Params }) => {
         courseId || "",
         user.id.toString()
       );
+
+      console.log(progressResponse.data);
 
       progress =
         progressResponse.status === 200

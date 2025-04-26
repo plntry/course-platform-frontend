@@ -65,7 +65,31 @@ export interface CourseAssignment {
   course_id: number;
   section_id: number;
   submission_type: CourseAssignmentSubmissionType;
+  is_completed: boolean;
+  status: "not_started" | "graded" | "submitted";
+  score?: number;
+  feedback?: string;
   files: AssignmentFile[];
+}
+
+export interface PostCourseReview {
+  text: string;
+}
+
+export interface CourseReview {
+  id: number;
+  text: string;
+  user_id: number;
+  course_id: number;
+  created_at: string;
+  updated_at: string;
+  user_first_name: string;
+  user_last_name: string;
+}
+
+export interface PostAssignmentGrade {
+  score: number;
+  feedback: string;
 }
 
 export enum CoursePage {
