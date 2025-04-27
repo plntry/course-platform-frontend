@@ -62,6 +62,7 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // If the request is not being retried, try to refresh the token
     if (!originalRequest._retry) {
       console.log("here");
 
