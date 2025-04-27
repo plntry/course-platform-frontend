@@ -89,7 +89,7 @@ export const handleAuthResponse = async (
 };
 
 export const rootLoader: LoaderFunction = async ({ request }) => {
-  const { isAuthenticated, checkAuth } = useAuthStore.getState();
+  const { checkAuth, isAuthenticated } = useAuthStore.getState();
   const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
   const pathname = new URL(request.url).pathname;
   const currentPath =
@@ -97,12 +97,18 @@ export const rootLoader: LoaderFunction = async ({ request }) => {
       ? pathname.substring(1)
       : pathname;
 
-  await checkAuth();
+  if (guestAccessiblePaths.has(currentPath)) {
+    return null;
+  }
 
-  const { isAuthenticated: updatedIsAuthenticated } = useAuthStore.getState();
-
-  if (!updatedIsAuthenticated && !guestAccessiblePaths.has(currentPath)) {
-    return redirect(PATHS.AUTH.link);
+  if (!isAuthenticated) {
+    try {
+      await checkAuth();
+    } catch {
+      if (!guestAccessiblePaths.has(currentPath)) {
+        return redirect(PATHS.AUTH.link);
+      }
+    }
   }
 
   return null;

@@ -3,7 +3,7 @@ import CourseForm from "../../components/CourseForm";
 import { GetCourse } from "../../models/Course";
 
 const EditCoursePage: React.FC = () => {
-  const course: GetCourse | undefined = useRouteLoaderData("courseDetails");
+  const { course } = useRouteLoaderData("courseDetails");
 
 return <CourseForm course={course} />;
 };

@@ -10,304 +10,346 @@ import {
   TabsProps,
   notification as antdNotification,
 } from "antd";
-import { Params, useLoaderData } from "react-router";
-import { CourseSection, CreateCourseSection } from "../../models/Course";
-import AssignmentsList from "../../components/AssignmentsList";
-import classes from "./CourseSections.module.css";
+import { Params, useLoaderData, useRouteLoaderData } from "react-router";
+import { CourseSection, CreateUpdateCourseSection } from "../../models/Course";
 import { useAuthStore } from "../../store/useAuthStore";
 import { GUEST_ROLE, UserRoles } from "../../models/User";
-import TitleComp from "../../components/Title";
-import { useAssignmentsStore } from "../../store/useAssignmentsStore";
 import { courseSectionsApi } from "../../api/courseSections";
+import AssignmentsList from "../../components/AssignmentsList";
+import TitleComp from "../../components/Title";
+import classes from "./CourseSections.module.css";
+import { progressApi } from "../../api/progress";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
+type Section = NonNullable<TabsProps["items"]>[number];
 
 const CourseSections: React.FC = () => {
-  const { md } = Grid.useBreakpoint();
+  // Grid and UI settings
+  const { xs, md } = Grid.useBreakpoint();
+
   const tabPosition = md ? "left" : "top";
   const tabSize = md ? "middle" : "small";
 
-  const { percentDone, increasePercentDone } = useAssignmentsStore();
+  const { course } = useRouteLoaderData("courseDetails");
+
+  // Notifications
   const [notification, contextHolder] = antdNotification.useNotification();
 
+  // Auth and data
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
-  // const role = UserRoles.STUDENT;
-  const { data: retrievedSections, courseId } = useLoaderData();
+  const {
+    data: retrievedSections,
+    courseId,
+    progress: initialProgress,
+  } = useLoaderData();
 
+  // State management
+  const [sections, setSections] =
+    useState<NonNullable<TabsProps["items"]>>(retrievedSections);
   const [activeKey, setActiveKey] = useState(
     retrievedSections.length ? String(retrievedSections[0].key) : "1"
   );
-  const [sections, setSections] =
-    useState<NonNullable<TabsProps["items"]>>(retrievedSections);
-    const [refreshKey, setRefreshKey] = useState(0);
 
-    const [editingKey, setEditingKey] = useState<string | null>(null);
-    const [editingText, setEditingText] = useState<string>("");
+  // Section editing state
+  const [editingSectionKey, setEditingSectionKey] = useState<string | null>(
+    null
+  );
+  const [editingSectionTitle, setEditingSectionTitle] = useState<string>("");
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [newSectionTitle, setNewSectionTitle] = useState("");
+  // Modal state
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newSectionTitle, setNewSectionTitle] = useState("");
 
-    const remove = (targetKey: TargetKey) => {
-      const targetIndex = sections.findIndex((item) => item.key === targetKey);
-      const newSections = sections.filter((item) => item.key !== targetKey);
+  // Progress state
+  const [progress, setProgress] = useState(initialProgress);
 
-      if (newSections.length && targetKey === activeKey) {
-        const newActiveKey =
-          newSections[
-            targetIndex === newSections.length ? targetIndex - 1 : targetIndex
-          ].key;
-        setActiveKey(newActiveKey);
-      }
-      setSections(newSections);
-    };
+  // Section management functions
+  const handleSectionRemoval = (targetKey: TargetKey) => {
+    const targetIndex = sections.findIndex((item) => item.key === targetKey);
+    const newSections = sections.filter((item) => item.key !== targetKey);
 
-    const onEdit = async (targetKey: TargetKey, action: "add" | "remove") => {
-      if (action === "remove") {
-        try {
-          const response = await courseSectionsApi.delete(targetKey as string);
+    if (newSections.length && targetKey === activeKey) {
+      const newActiveKey =
+        newSections[
+          targetIndex === newSections.length ? targetIndex - 1 : targetIndex
+        ].key;
+      setActiveKey(newActiveKey);
+    }
+    setSections(newSections);
+  };
 
-          if (response.status === 200) {
-            remove(targetKey);
-            notification.success({
-              message: "Success",
-              description: "Section deleted successfully",
-            });
-          } else {
-            throw new Error("Failed to delete section");
-          }
-        } catch (error) {
-          notification.error({
-            message: "Error",
-            description: "Failed to delete section. Please try again.",
-          });
-        }
-      }
-    };
-
-    const updateTabLabel = async (key: string, newLabel: string) => {
+  const handleSectionEdit = async (
+    targetKey: TargetKey,
+    action: "add" | "remove"
+  ) => {
+    if (action === "remove") {
       try {
-        const section = sections.find((s) => s.key === key);
-        if (!section) return;
-
-        // Skip update if the new label is the same as the current one
-        if (section.label === newLabel) {
-          setEditingKey(null);
-          return;
-        }
-
-        const sectionId = key;
-        const response = await courseSectionsApi.update(sectionId, {
-          id: +sectionId,
-          title: newLabel,
-          description: "", // Keep existing description
-          order: 0, // Keep existing order
-          course_id: courseId,
-        });
-
+        const response = await courseSectionsApi.delete(targetKey as string);
         if (response.status === 200) {
-          setSections((prev) =>
-            prev.map((tab) =>
-              tab.key === key ? { ...tab, label: newLabel } : tab
-            )
-          );
+          handleSectionRemoval(targetKey);
           notification.success({
             message: "Success",
-            description: "Section title updated successfully",
+            description: "Section deleted successfully",
           });
-        } else {
-          throw new Error("Failed to update section title");
         }
       } catch (error) {
-        console.error("Failed to update section title:", error);
         notification.error({
           message: "Error",
-          description: "Failed to update section title. Please try again.",
+          description: "Failed to delete section. Please try again.",
         });
       }
-    };
+    }
+  };
 
-    const renderTabLabel = (item: NonNullable<TabsProps["items"]>[number]) => {
-      if (item.key === editingKey) {
-        return (
-          <Input
-            value={editingText}
-            onChange={(e) => setEditingText(e.target.value)}
-            onBlur={() => {
-              updateTabLabel(item.key as string, editingText);
-              setEditingKey(null);
-            }}
-            onPressEnter={() => {
-              updateTabLabel(item.key as string, editingText);
-              setEditingKey(null);
-            }}
-            autoFocus
-            size="small"
-          />
-        );
+  const handleSectionTitleUpdate = async (key: string, newLabel: string) => {
+    try {
+      const section = sections.find((s) => s.key === key);
+      if (!section || section.label === newLabel) {
+        setEditingSectionKey(null);
+        return;
       }
+
+      const response = await courseSectionsApi.update(key, {
+        title: newLabel,
+        order: 0,
+      });
+
+      if (response.status === 200) {
+        setSections((prev) =>
+          prev.map((tab) =>
+            tab.key === key ? { ...tab, label: newLabel } : tab
+          )
+        );
+        notification.success({
+          message: "Success",
+          description: "Section title updated successfully",
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: "Failed to update section title. Please try again.",
+      });
+    } finally {
+      setEditingSectionKey(null);
+    }
+  };
+
+  // Add this function to update progress
+  const updateProgress = (newProgress: number) => {
+    setProgress(newProgress.toFixed(1));
+  };
+
+  // Render functions
+  const renderSectionLabel = (item: Section) => {
+    if (role !== UserRoles.TEACHER) {
+      return <span>{item.label}</span>;
+    }
+
+    if (item.key === editingSectionKey) {
       return (
-        <span
-          style={{
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            maxWidth: "8rem",
-            display: "inline-block",
-          }}
-          onClick={() => {
-            setEditingKey(item.key as string);
-            setEditingText(typeof item.label === "string" ? item.label : "");
-          }}
-        >
-          {item.label}
-        </span>
+        <Input
+          value={editingSectionTitle}
+          onChange={(e) => setEditingSectionTitle(e.target.value)}
+          onKeyDown={(e) => e.stopPropagation()}
+          onBlur={() =>
+            handleSectionTitleUpdate(item.key as string, editingSectionTitle)
+          }
+          onPressEnter={() =>
+            handleSectionTitleUpdate(item.key as string, editingSectionTitle)
+          }
+          autoFocus
+          size="small"
+        />
       );
-    };
-
-    const showModal = () => {
-      setIsModalVisible(true);
-    };
-
-    const handleOk = async () => {
-      if (!newSectionTitle.trim()) return;
-
-      try {
-        const newSectionData: CreateCourseSection = {
-          title: newSectionTitle,
-          order: sections.length,
-        };
-
-        const response = await courseSectionsApi.create(
-          courseId,
-          newSectionData
-        );
-
-        if (response.status === 201) {
-          const newSection = response.data;
-          setSections([
-            ...sections,
-            {
-              label: newSection.title,
-              key: newSection.id,
-              children: (
-                <AssignmentsList
-                  refreshKey={refreshKey}
-                  courseId={courseId}
-                  sectionId={newSection.id}
-                />
-              ),
-            },
-          ]);
-          setActiveKey(String(newSection.id));
-          setNewSectionTitle("");
-          setIsModalVisible(false);
-          notification.success({
-            message: "Success",
-            description: "Section created successfully",
-          });
-        } else {
-          throw new Error("Failed to create section");
-        }
-      } catch (error) {
-        console.error("Failed to create section:", error);
-        notification.error({
-          message: "Error",
-          description: "Failed to create section. Please try again.",
-        });
-      }
-    };
-
-    const handleCancel = () => {
-      setIsModalVisible(false);
-    };
-
-    const tabsItems = useMemo(
-      () =>
-        sections.map((section) => ({
-          ...section,
-          label: renderTabLabel(section),
-          children: (
-            <AssignmentsList
-              key={`section-${section.key}-${refreshKey}`}
-              refreshKey={refreshKey}
-              courseId={courseId}
-              sectionId={+section.key}
-            />
-          ),
-        })),
-      [sections, editingKey, editingText]
-    );
+    }
 
     return (
-      <Flex vertical align="center" gap={20}>
-        {contextHolder}
-        <TitleComp>Assignments</TitleComp>
-        {role === UserRoles.TEACHER && (
-          <Button
-            onClick={showModal}
-            style={{ alignSelf: "flex-start", width: "7.5rem" }}
-            type="link"
-          >
-            Add Section
-          </Button>
-        )}
-        {/* {role === UserRoles.STUDENT && (
-        <Progress percent={percentDone} type="line" />
-      )} */}
-        {sections.length ? (
-          <Tabs
-            type="editable-card"
-            size={tabSize}
-            tabPosition={tabPosition}
-            hideAdd
-            className={classes.tabs}
-            activeKey={activeKey}
-            onChange={setActiveKey}
-            onEdit={onEdit}
-            items={tabsItems}
-          />
-        ) : (
-          <Flex justify="center" style={{ width: "100%" }}>
-            There're no sections yet
-          </Flex>
-        )}
-        {role === UserRoles.TEACHER && (
-          <Modal
-            title="Add Section"
-            open={isModalVisible}
-            onOk={handleOk}
-            onCancel={handleCancel}
-          >
-            <Input
-              placeholder="Section Title"
-              value={newSectionTitle}
-              onChange={(e) => setNewSectionTitle(e.target.value)}
+      <span
+        className={classes.sectionLabel}
+        onClick={() => {
+          setEditingSectionKey(item.key as string);
+          setEditingSectionTitle(
+            typeof item.label === "string" ? item.label : ""
+          );
+        }}
+      >
+        {item.label}
+      </span>
+    );
+  };
+
+  // Modal handlers
+  const handleModalOk = async () => {
+    if (!newSectionTitle.trim()) return;
+
+    try {
+      const response = await courseSectionsApi.create(courseId, {
+        title: newSectionTitle,
+        order: sections.length,
+      });
+
+      if (response.status === 201) {
+        const newSection = response.data;
+        setSections([
+          ...sections,
+          {
+            label: newSection.title,
+            key: newSection.id,
+            children: (
+              <AssignmentsList
+                key={`section-${newSection.id}`}
+                courseId={courseId}
+                sectionId={newSection.id}
+                isActive={activeKey === newSection.id}
+                updateProgress={updateProgress}
+              />
+            ),
+          },
+        ]);
+        setActiveKey(String(newSection.id));
+        setNewSectionTitle("");
+        setIsModalVisible(false);
+        notification.success({
+          message: "Success",
+          description: "Section created successfully",
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: "Error",
+        description: "Failed to create section. Please try again.",
+      });
+    }
+  };
+
+  // Memoized values
+  const tabsItems = useMemo(
+    () =>
+      sections.map((section) => {
+        const sectionId = Number(section.key);
+        return {
+          ...section,
+          label: renderSectionLabel(section),
+          children: (
+            <AssignmentsList
+              key={`section-${sectionId}`}
+              courseId={Number(courseId)}
+              sectionId={sectionId}
+              isActive={activeKey === section.key}
+              updateProgress={updateProgress}
             />
-          </Modal>
+          ),
+        };
+      }),
+    [
+      sections,
+      editingSectionKey,
+      editingSectionTitle,
+      courseId,
+      role,
+      activeKey,
+    ]
+  );
+
+  return (
+    <Flex vertical align="center" gap={20}>
+      {contextHolder}
+      <Flex justify="center" align="center" gap={!xs ? 20 : 0} wrap="wrap">
+        <TitleComp>"{course.title}" Course: Assignments</TitleComp>
+        {role === UserRoles.STUDENT && (
+          <Progress
+            type="circle"
+            percent={progress}
+            size={60}
+            style={{ marginTop: "10px" }}
+          />
         )}
       </Flex>
-    );
+
+      {role === UserRoles.TEACHER && (
+        <Button
+          onClick={() => setIsModalVisible(true)}
+          style={{ alignSelf: "flex-start", width: "7.5rem" }}
+          type="link"
+        >
+          Add Section
+        </Button>
+      )}
+
+      {sections.length ? (
+        <Tabs
+          type={role === UserRoles.TEACHER ? "editable-card" : "card"}
+          size={tabSize}
+          tabPosition={tabPosition}
+          hideAdd
+          className={classes.tabs}
+          activeKey={activeKey}
+          onChange={setActiveKey}
+          onEdit={role === UserRoles.TEACHER ? handleSectionEdit : undefined}
+          items={tabsItems}
+        />
+      ) : (
+        <Flex justify="center" style={{ width: "100%" }}>
+          There're no sections yet
+        </Flex>
+      )}
+
+      {role === UserRoles.TEACHER && (
+        <Modal
+          title="Add Section"
+          open={isModalVisible}
+          onOk={handleModalOk}
+          onCancel={() => setIsModalVisible(false)}
+        >
+          <Input
+            placeholder="Section Title"
+            value={newSectionTitle}
+            onChange={(e) => setNewSectionTitle(e.target.value)}
+          />
+        </Modal>
+      )}
+    </Flex>
+  );
 };
 
 export default CourseSections;
 
 export const loader = async ({ params }: { params: Params }) => {
   const { courseId } = params;
+  const user = useAuthStore.getState().user;
+  let progress = 0;
 
   try {
     const response = await courseSectionsApi.getAllByCourse(courseId || "");
+    const data =
+      response.status === 200
+        ? response.data.map((section: CourseSection) => ({
+            key: section.id,
+            label: section.title,
+          }))
+        : [];
 
-    if (response.status === 200) {
-      const data = response.data.map((section: CourseSection) => ({
-        key: section.id,
-        label: section.title,
-      }));
-      return { courseId, data };
+    // Fetch progress if user is a student
+    if (user?.role === UserRoles.STUDENT) {
+      const progressResponse = await progressApi.getByCourse(
+        courseId || "",
+        user.id.toString()
+      );
+
+      progress =
+        progressResponse.status === 200
+          ? +(
+              (progressResponse.data.completed_assignments /
+                progressResponse.data.total_assignments) *
+              100
+            ).toFixed(1)
+          : 0;
     }
 
-    return { courseId, data: [] };
+    return { courseId, data, progress };
   } catch (error) {
     console.error("Failed to fetch course sections:", error);
-    return { courseId, data: [] };
+    return { courseId, data: [], progress };
   }
 };

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Row, Col, Card, Button, theme, Flex } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { studentApi } from "../../api/students";
 import { Student } from "../../models/Student";
 import DeleteModal from "../DeleteModal";
 import SearchInput from "../SearchInput";
 import Loader from "../Loader";
-
+import { useNavigate } from "react-router";
+import { PATHS } from "../../routes/paths";
 const StudentsList: React.FC<{ courseId: string }> = ({ courseId }) => {
+  const navigate = useNavigate();
   const { token: themeToken } = theme.useToken();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -76,30 +79,43 @@ const StudentsList: React.FC<{ courseId: string }> = ({ courseId }) => {
                   extra={
                     <Button
                       color="danger"
-                      variant="filled"
+                      variant="link"
                       onClick={() => {
                         setSelectedStudent(item);
                         setShowDeleteModal(true);
                       }}
                     >
-                      Delete
+                      <DeleteOutlined />
                     </Button>
                   }
                 >
-                  <Flex vertical style={{ margin: "0" }}>
-                    {studentCardsBodyData.map((el, index) => (
-                      <div key={index}>
-                        {el.label}{" "}
-                        <span
-                          style={{
-                            fontWeight: "600",
-                            color: themeToken.colorPrimary,
-                          }}
-                        >
-                          {item[el.studentPropName]}
-                        </span>
-                      </div>
-                    ))}
+                  <Flex vertical gap={10}>
+                    <Flex vertical style={{ margin: "0" }}>
+                      {studentCardsBodyData.map((el, index) => (
+                        <div key={index}>
+                          {el.label}{" "}
+                          <span
+                            style={{
+                              fontWeight: "600",
+                              color: themeToken.colorPrimary,
+                            }}
+                          >
+                            {item[el.studentPropName]}
+                          </span>
+                        </div>
+                      ))}
+                    </Flex>
+                    <Button
+                      color="primary"
+                      variant="outlined"
+                      onClick={() => {
+                        navigate(
+                          `${PATHS.STUDENT_ASSIGNMENTS_FOR_REVIEW.link}?course=${courseId}&student=${item.id}`
+                        );
+                      }}
+                    >
+                      Assignments for Review
+                    </Button>
                   </Flex>
                 </Card>
               </Col>

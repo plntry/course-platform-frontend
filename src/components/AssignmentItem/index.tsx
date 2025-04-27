@@ -1,6 +1,9 @@
 import React, { useState } from "react";
-import { Button, Space, Typography, message } from "antd";
-import { CourseAssignment } from "../../models/Course";
+import { Button, Flex, Space, Typography, message, theme } from "antd";
+import {
+  CourseAssignment,
+  CourseAssignmentSubmissionType,
+} from "../../models/Course";
 import { GUEST_ROLE, UserRoles } from "../../models/User";
 import { useAuthStore } from "../../store/useAuthStore";
 import { useAssignmentsStore } from "../../store/useAssignmentsStore";
@@ -8,10 +11,13 @@ import { assignmentFilesApi } from "../../api/files";
 import dayjs from "dayjs";
 import DeleteModal from "../DeleteModal";
 import { useLoaderData } from "react-router";
+import { handleFileDownload } from "../../utils/fileUtils";
+import TitleComp from "../Title";
 
 const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
   assignment,
 }) => {
+  const { token: themeToken } = theme.useToken();
   const { courseId } = useLoaderData();
   const role = useAuthStore((state) => state.user?.role) || GUEST_ROLE;
 
@@ -22,34 +28,19 @@ const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
   const dueDate = dayjs(assignment.due_date);
   const canViewDetails = role === UserRoles.TEACHER || today.isBefore(dueDate);
 
-  const handleFileDownload = async (fileKey: string, filename: string) => {
-    try {
-      const response = await assignmentFilesApi.download(fileKey);
-      const blob = new Blob([response.data], {
-        type: response.headers["content-type"],
-      });
-
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename || fileKey.split("/").pop() || "downloaded-file";
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      message.error("Failed to download file");
-    }
-  };
-
   const assignmentDetails = [
     { title: "Description", value: assignment.description },
     { title: "Due Date", value: dueDate.format("YYYY-MM-DD") },
     { title: "Teacher Comments", value: assignment.teacher_comments },
+    {
+      title: "Submission Type",
+      value: assignment.submission_type
+        ? assignment.submission_type ===
+          CourseAssignmentSubmissionType.AutoComplete
+          ? "Auto Complete"
+          : "File Submission"
+        : "Auto Complete",
+    },
   ];
 
   return (
@@ -80,6 +71,19 @@ const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
               </Space>
             </Typography.Paragraph>
           )}
+          {assignment.feedback && (
+            <Typography.Paragraph>
+              <TitleComp
+                props={{
+                  level: 5,
+                  style: { color: themeToken.colorPrimaryActive, marginTop: 0 },
+                }}
+              >
+                Feedback by teacher:
+              </TitleComp>
+              <Typography.Paragraph>{assignment.feedback}</Typography.Paragraph>
+            </Typography.Paragraph>
+          )}
         </>
       ) : (
         <Typography.Text type="warning">
@@ -95,11 +99,6 @@ const AssignmentItem: React.FC<{ assignment: CourseAssignment }> = ({
             Delete
           </Button>
         </Space>
-      )}
-      {canViewDetails && role === UserRoles.STUDENT && (
-        <Button type="primary" onClick={increasePercentDone}>
-          Mark As Done
-        </Button>
       )}
       {role === UserRoles.TEACHER && showDelete && (
         <DeleteModal

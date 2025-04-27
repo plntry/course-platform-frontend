@@ -8,6 +8,7 @@ interface AssignmentsState {
   currentEditingAssignment: CourseAssignment | null;
   isModalVisible: boolean;
   percentDone: number;
+  currentSectionId: number | null;
   fetchAssignments: (courseId: string, sectionId: number) => Promise<void>;
   addAssignment: (courseId: string, formData: FormData) => Promise<void>;
   editAssignment: (
@@ -16,7 +17,7 @@ interface AssignmentsState {
     formData: FormData
   ) => Promise<void>;
   deleteAssignment: (courseId: string, id: number) => void;
-  showAddModal: () => void;
+  showAddModal: (sectionId: number) => void;
   showEditModal: (assignment: CourseAssignment) => void;
   hideModal: () => void;
   increasePercentDone: () => void;
@@ -28,13 +29,19 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
   currentEditingAssignment: null,
   isModalVisible: false,
   percentDone: 0,
+  currentSectionId: null,
 
   fetchAssignments: async (courseId: string, sectionId: number) => {
     set({ loading: true });
     try {
+      const validSectionId = Number(sectionId);
+      if (isNaN(validSectionId)) {
+        throw new Error("Invalid sectionId");
+      }
+
       const response = await assignmentsApi.getAllBySection(
         courseId,
-        String(sectionId)
+        validSectionId.toString()
       );
       set({ assignments: response.data, loading: false });
     } catch (error) {
@@ -42,7 +49,6 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
       set({ loading: false });
     }
   },
-
   addAssignment: async (courseId: string, formData: FormData) => {
     try {
       const response = await assignmentsApi.create(courseId, formData);
@@ -97,8 +103,12 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
     }
   },
 
-  showAddModal: () => {
-    set({ currentEditingAssignment: null, isModalVisible: true });
+  showAddModal: (sectionId: number) => {
+    set({
+      currentEditingAssignment: null,
+      isModalVisible: true,
+      currentSectionId: sectionId,
+    });
   },
 
   showEditModal: (assignment: CourseAssignment) => {
@@ -106,7 +116,10 @@ export const useAssignmentsStore = create<AssignmentsState>((set, get) => ({
   },
 
   hideModal: () => {
-    set({ isModalVisible: false });
+    set({
+      isModalVisible: false,
+      currentSectionId: null,
+    });
   },
 
   increasePercentDone: () => {

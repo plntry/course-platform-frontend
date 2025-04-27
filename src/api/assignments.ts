@@ -1,5 +1,4 @@
 import api from ".";
-import { CourseAssignment } from "../models/Course";
 
 const ASSIGNMENTS_BASE_URL = "/courses";
 

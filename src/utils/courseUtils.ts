@@ -1,7 +1,9 @@
 import { userAvailableCourseActions } from "../constants/availableCourseActions";
 import { UserAvailableCourseActions } from "../models/Course";
 
-export const getCategoryColor = (category: string) => {
+export const getCategoryColor = (category: string | undefined) => {
+  if (!category) return "blue"; // Default color for undefined category
+
   const colors = [
     "blue",
     "green",
