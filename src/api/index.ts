@@ -64,8 +64,6 @@ api.interceptors.response.use(
 
     // If the request is not being retried, try to refresh the token
     if (!originalRequest._retry) {
-      console.log("here");
-
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
