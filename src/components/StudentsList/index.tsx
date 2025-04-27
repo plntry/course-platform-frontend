@@ -73,7 +73,7 @@ const StudentsList: React.FC<{ courseId: string }> = ({ courseId }) => {
           <SearchInput onChange={(e) => setSearchText(e.target.value)} />
           <Row gutter={[16, 16]} style={{ width: "100%" }}>
             {filteredStudents.map((item) => (
-              <Col key={item.id} xs={24} sm={12} md={8} lg={6}>
+              <Col key={item.id} xs={24} sm={24} md={12} lg={8}>
                 <Card
                   title={item.email}
                   extra={
