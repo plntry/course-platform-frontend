@@ -236,13 +236,11 @@ const CourseDetails: React.FC = () => {
               Course Rating:
             </Text>
             <Rate allowHalf value={courseRating} disabled />
-            {
-              /*role === UserRoles.STUDENT && course.is_enrolled &&*/ <Button
-                onClick={() => setIsRatingModalOpen(true)}
-              >
+            {role === UserRoles.STUDENT && course.is_enrolled && (
+              <Button onClick={() => setIsRatingModalOpen(true)}>
                 Rate this course
               </Button>
-            }
+            )}
           </Flex>
 
           <Modal
