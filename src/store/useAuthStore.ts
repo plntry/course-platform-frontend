@@ -42,7 +42,14 @@ export const useAuthStore = create<AuthState>()(
               set({ user: null, isAuthenticated: false });
             }
           } else {
-            set({ user: null, isAuthenticated: false });
+            // If there's no token at all, try to refresh first
+            try {
+              await authApi.refreshToken();
+              const { data } = await authApi.getToken();
+              set({ user: data, isAuthenticated: true });
+            } catch {
+              set({ user: null, isAuthenticated: false });
+            }
           }
         }
       },
