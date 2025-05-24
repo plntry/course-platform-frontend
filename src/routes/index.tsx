@@ -52,7 +52,7 @@ export const routes = [
           {
             index: true,
             element: (
-              <ProtectedRoute allowedRoles={[...PATHS.COURSES.roles]}>
+              <ProtectedRoute allowedRoles={PATHS.COURSES.roles}>
                 <AllCourses />
               </ProtectedRoute>
             ),
@@ -61,7 +61,7 @@ export const routes = [
           {
             path: PATHS.MY_COURSES.link,
             element: (
-              <ProtectedRoute allowedRoles={[...PATHS.MY_COURSES.roles]}>
+              <ProtectedRoute allowedRoles={PATHS.MY_COURSES.roles}>
                 <MyCourses />
               </ProtectedRoute>
             ),
@@ -75,7 +75,7 @@ export const routes = [
               {
                 index: true,
                 element: (
-                  <ProtectedRoute allowedRoles={[...PATHS.COURSE.roles]}>
+                  <ProtectedRoute allowedRoles={PATHS.COURSE.roles}>
                     <CourseDetails />
                   </ProtectedRoute>
                 ),
@@ -83,7 +83,7 @@ export const routes = [
               {
                 path: PATHS.EDIT_COURSE.link,
                 element: (
-                  <ProtectedRoute allowedRoles={[...PATHS.EDIT_COURSE.roles]}>
+                  <ProtectedRoute allowedRoles={PATHS.EDIT_COURSE.roles}>
                     <EditCoursePage />
                   </ProtectedRoute>
                 ),
@@ -91,7 +91,7 @@ export const routes = [
               {
                 path: PATHS.DELETE_COURSE.link,
                 element: (
-                  <ProtectedRoute allowedRoles={[...PATHS.DELETE_COURSE.roles]}>
+                  <ProtectedRoute allowedRoles={PATHS.DELETE_COURSE.roles}>
                     <DeleteCoursePage />
                   </ProtectedRoute>
                 ),
@@ -100,9 +100,7 @@ export const routes = [
               {
                 path: PATHS.COURSE_SECTIONS.link,
                 element: (
-                  <ProtectedRoute
-                    allowedRoles={[...PATHS.COURSE_SECTIONS.roles]}
-                  >
+                  <ProtectedRoute allowedRoles={PATHS.COURSE_SECTIONS.roles}>
                     <CourseSections />
                   </ProtectedRoute>
                 ),
@@ -113,7 +111,7 @@ export const routes = [
           {
             path: PATHS.NEW_COURSE.link,
             element: (
-              <ProtectedRoute allowedRoles={[...PATHS.NEW_COURSE.roles]}>
+              <ProtectedRoute allowedRoles={PATHS.NEW_COURSE.roles}>
                 <NewCoursePage />
               </ProtectedRoute>
             ),
@@ -128,7 +126,7 @@ export const routes = [
           {
             index: true,
             element: (
-              <ProtectedRoute allowedRoles={[...PATHS.STUDENTS.roles]}>
+              <ProtectedRoute allowedRoles={PATHS.STUDENTS.roles}>
                 <StudentsPage />
               </ProtectedRoute>
             ),
@@ -140,7 +138,7 @@ export const routes = [
         path: PATHS.STUDENT_ASSIGNMENTS_FOR_REVIEW.link,
         element: (
           <ProtectedRoute
-            allowedRoles={[...PATHS.STUDENT_ASSIGNMENTS_FOR_REVIEW.roles]}
+            allowedRoles={PATHS.STUDENT_ASSIGNMENTS_FOR_REVIEW.roles}
           >
             <AssignmentsForReview />
           </ProtectedRoute>
@@ -149,7 +147,7 @@ export const routes = [
       },
       {
         path: PATHS.LOGOUT.link,
-        element: <ProtectedRoute allowedRoles={[...PATHS.LOGOUT.roles]} />,
+        element: <ProtectedRoute allowedRoles={PATHS.LOGOUT.roles} />,
         children: [{ index: true }],
         action: logoutAction,
       },
@@ -161,13 +159,13 @@ export const routes = [
   },
   {
     path: PATHS.AUTH.link,
-    element: <ProtectedRoute allowedRoles={[...PATHS.AUTH.roles]} />,
+    element: <ProtectedRoute allowedRoles={PATHS.AUTH.roles} />,
     children: [{ index: true, element: <AuthPage /> }],
   },
   {
     path: PATHS.REQUEST_PASSWORD_RESET.link,
     element: (
-      <ProtectedRoute allowedRoles={[...PATHS.REQUEST_PASSWORD_RESET.roles]}>
+      <ProtectedRoute allowedRoles={PATHS.REQUEST_PASSWORD_RESET.roles}>
         <ResetPasswordRequest />
       </ProtectedRoute>
     ),
@@ -175,7 +173,7 @@ export const routes = [
   {
     path: PATHS.RESET_PASSWORD.link,
     element: (
-      <ProtectedRoute allowedRoles={[...PATHS.RESET_PASSWORD.roles]}>
+      <ProtectedRoute allowedRoles={PATHS.RESET_PASSWORD.roles}>
         <ResetPassword />
       </ProtectedRoute>
     ),

@@ -44,21 +44,8 @@ api.interceptors.response.use(
       : pathname;
     const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
 
-    // Get all auth paths including nested ones
-    const authPaths = new Set(
-      [
-        urls.auth.login,
-        urls.auth.logout,
-        urls.auth.requestPasswordReset,
-        urls.auth.resetPassword,
-        urls.auth.getToken,
-        urls.auth.refreshToken,
-        ...Object.values(urls.auth.register).flat(),
-      ].map((path) => `auth${path}`)
-    );
-
     // Don't retry for guest paths or auth endpoints
-    if (guestAccessiblePaths.has(currentPath) || authPaths.has(currentPath)) {
+    if (guestAccessiblePaths.has(currentPath)) {
       return Promise.reject(error);
     }
 

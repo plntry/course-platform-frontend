@@ -1,12 +1,11 @@
 import React from "react";
 import { Link, useNavigate, useSubmit, useLocation } from "react-router";
-import { PATHS, ROLE_PATHS } from "../../routes/paths";
-import { Layout, Menu, MenuProps, theme } from "antd";
-import { HomeOutlined, LoginOutlined, LogoutOutlined } from "@ant-design/icons";
+import { PATHS } from "../../routes/paths";
+import { Layout, Menu, theme } from "antd";
 import classes from "./Header.module.css";
 import logo from "../../assets/logo.png";
 import { useAuthStore } from "../../store/useAuthStore";
-import { GUEST_ROLE, UserRoles } from "../../models/User";
+import { GUEST_ROLE } from "../../models/User";
 import {
   availableHeaderTabs,
   MenuItem,
