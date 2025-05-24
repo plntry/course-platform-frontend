@@ -1,0 +1,52 @@
+name: Frontend Deploy to S3
+
+on:
+  push:
+    branches:
+      - develop  # твоя гілка
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create .env file
+        run: |
+            echo "VITE_API_BASE_URL=${{secrets.VITE_API_BASE_URL}}" >> .env
+            echo "VITE_WS_URL=${{ secrets.VITE_WS_URL }}" >> .env
+
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Deploy to S3
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --delete
+        env:
+          AWS_S3_BUCKET: team-project-backet 
+          AWS_ACCESS_KEY_ID: ${{secrets.MY_AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.MY_AWS_SECRET_ACCESS_KEY}}
+          SOURCE_DIR: build
+
+      - name: Invalidate CloudFront cache
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          DISTRIBUTION: ${{secrets.CLOUDFRONT_DISTRIBUTION_ID}}
+          PATHS: "/*"
+          AWS_REGION: "us-east-1"
+          AWS_ACCESS_KEY_ID: ${{secrets.MY_AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.MY_AWS_SECRET_ACCESS_KEY}}
+
+
