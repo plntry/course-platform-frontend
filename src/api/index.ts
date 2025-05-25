@@ -38,16 +38,6 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as CustomAxiosRequestConfig;
-    const pathname = new URL(originalRequest.url || "", BASE_URL).pathname;
-    const currentPath = pathname.startsWith("/")
-      ? pathname.substring(1)
-      : pathname;
-    const guestAccessiblePaths = new Set(ROLE_PATHS[GUEST_ROLE] || []);
-
-    // Don't retry for guest paths or auth endpoints
-    if (guestAccessiblePaths.has(currentPath)) {
-      return Promise.reject(error);
-    }
 
     // If the request is not being retried, try to refresh the token
     if (!originalRequest._retry) {
